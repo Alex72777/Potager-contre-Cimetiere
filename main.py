@@ -2,8 +2,7 @@ from gameClass import Game
 from playerClass import Player
 
 def main():
-    player = Player()
-    game = Game(player=player)
+    game = Game()
     game.draw()
 
 if __name__ == "__main__":

@@ -1,15 +1,24 @@
 from dataclasses import dataclass
-from common import Lane
 from plantsClass import Plant
+from zombiesClass import Zombie
 
 @dataclass
-class Entity:
-    lane: Lane
-    health_scale: int
-    
-@dataclass
-class LivingPlant(Entity):
+class LivingPlant:
     plant: Plant
+    
+    def __post_init__(self):
+        self.name = self.plant.name
+        self.health_scale = self.plant.health
+        self.health = self.health_scale
+
+@dataclass
+class LivingZombie:
+    zombie: Zombie
+    
+    def __post_init__(self):
+        self.name = self.zombie.name
+        self.health_scale = self.zombie.health
+        self.health = self.health_scale
 
 @dataclass
 class Lawnmoyer:

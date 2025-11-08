@@ -4,3 +4,4 @@ from dataclasses import dataclass
 class Lane:
     slots: list
     has_lawnmoyer: bool
+    
