@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from plantsClass import Plant, PEASHOOTER
+from plantsClass import Plant, PLANTS
 from entityClass import Lawnmoyer, LivingPlant, LivingZombie
 from tkinter import Button, Frame, IntVar, Tk
 from time import time
@@ -42,7 +42,7 @@ class Slot(Button):
         
         self.configure(bg="green2" if self.x % 2 else 'chartreuse3',
                        width=10,
-                       height=3,
+                       height=4,
                        borderwidth=0)
     
     def place_plant(self, game: "Game"):
@@ -52,8 +52,12 @@ class Slot(Button):
         if self.taken_by:
             return
         
+        if game.player.suns.get() < game.player.selected_plant.plant.cost:
+            return
+        
         plant = game.player.selected_plant.plant
         new_living_plant = LivingPlant(plant)
+        self.taken_by = new_living_plant
         
         game.player.suns.set(game.player.suns.get() - plant.cost)
         
@@ -74,11 +78,14 @@ class Slot(Button):
 @dataclass
 class Player:
     master: Tk
-    unlocked_plants: list[Plant] = field(default_factory=lambda: [PEASHOOTER, PEASHOOTER, PEASHOOTER])
+    unlocked_plants: list[Plant] = field(default_factory=lambda: list(PLANTS.values()))
     selected_plant: SelectablePlant | None = None
+    SUNS_EARN_RATE = 25 
+    SUNS_COOLDOWN = 10 # seconds
     
     def __post_init__(self):
         self.suns = IntVar(self.master, 100)
+        self.lastly_earned_suns = time()
     
     def select_plant(self, selectable_plant: SelectablePlant):
         time_elapsed = time() - selectable_plant.last_used

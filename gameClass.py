@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Label
+from tkinter import Tk, Frame, Label, DoubleVar
 from playerClass import Player, SelectablePlant, Slot
 from zombiesClass import Zombie
 from entityClass import LivingPlant, LivingZombie, Lawnmoyer
@@ -10,17 +10,17 @@ class Game(Tk):
                  board_height: int = 5,
                  board_width: int = 10):
         super().__init__()
+        self.player = Player(self)
         self.difficulty_rating = difficulty_rating
         self.board_height = board_height
         self.board_width = board_width
         self.plant_selectors: list[SelectablePlant] = []
+        self.suns_earn_cooldown = DoubleVar(self, value=self.player.SUNS_COOLDOWN)
         self.waves: dict[int, list[Zombie]] = {}
         self.board = []
         self.speed = 1
         self.living_plants: list[LivingPlant | Lawnmoyer] = []
         self.living_zombies: list[LivingZombie] = []
-        
-        self.player = Player(self)
     
     def set_waves(self, waves: dict[int, list[Zombie]]):
         if waves:
@@ -47,8 +47,12 @@ class Game(Tk):
         self.board = board
         
         deck_frame = Frame(game_frame, bg='grey', padx=5, pady=5)
-        placeholder_label = Label(deck_frame, textvariable=self.player.suns)
-        placeholder_label.pack(fill='x', side='bottom')
+        
+        suns_label = Label(deck_frame, textvariable=self.player.suns)
+        suns_label.pack(fill='x', side='bottom')
+        
+        suns_earn_cooldown_label = Label(deck_frame, textvariable=self.suns_earn_cooldown, bg='grey')
+        suns_earn_cooldown_label.pack(fill='x', side='bottom')
         
         for plant in self.player.unlocked_plants:
             btn = SelectablePlant(deck_frame, plant)
@@ -61,21 +65,27 @@ class Game(Tk):
         
         game_frame.pack(fill='both', expand=True)
         
-        self.after(1, lambda: self.tick(time()))
+        self.after(0, lambda: self.tick(time()))
         self.mainloop()
     
-    def tick(self, last_tick):
+    def tick(self, last_tick: float):
         dt = time() - last_tick
         
         for plant_selector in self.plant_selectors:
             if time() - plant_selector.last_used > plant_selector.plant.cooldown:
                 plant_selector.configure(
                     text=plant_selector.plant.name,
-                    bg=plant_selector.default_color
+                    bg=plant_selector.default_color if self.player.selected_plant != plant_selector else plant_selector.hovered_color
                 )
             else:
                 plant_selector.configure(
                     text=f"{plant_selector.plant.name} {round(plant_selector.plant.cooldown - (time() - plant_selector.last_used), 1)}"
                 )
+        
+        if time() - self.player.lastly_earned_suns >= self.player.SUNS_COOLDOWN:
+            self.player.suns.set(self.player.suns.get() + self.player.SUNS_EARN_RATE)
+            self.player.lastly_earned_suns = time()
+        else:
+            self.suns_earn_cooldown.set(round(self.player.SUNS_COOLDOWN - (time() - self.player.lastly_earned_suns), 1))
         
         self.after(1, lambda: self.tick(time()))
