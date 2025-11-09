@@ -1,14 +1,15 @@
 from dataclasses import dataclass, field
-from plantsClass import Plant, Sunflower, PLANTS
-from entityClass import Lawnmoyer, LivingPlant, LivingZombie, LivingSunflower
+from plantsClass import Plant, PLANTS, Sunflower, Peashooter
+from entityClass import Lawnmoyer, RollingLawnmoyer, LivingPlant, LivingZombie, LivingSunflower, LivingPeashooter
 from tkinter import Button, Frame, IntVar, Tk
 from time import time
-from typing import TYPE_CHECKING
+from math import floor
+from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from gameClass import Game
 
-class SelectablePlant(Button):
+class PlantSelector(Button):
     def __init__(self,
                  master: Frame,
                  plant: Plant):
@@ -32,13 +33,13 @@ class Slot(Button):
                  x: int,
                  y: int,
                  pos: tuple,
-                 taken_by: LivingPlant | None = None,
-                 entities: list[LivingPlant | LivingZombie | Lawnmoyer] = []):
+                 lane: "Lane",
+                 taken_by: LivingPlant | None = None,):
         super().__init__(master)
         self.taken_by = taken_by
-        self.entities = entities
         self.x, self.y = x, y
         self.pos = pos
+        self.lane = lane
         self.default_color = "green2" if self.x % 2 else 'chartreuse3'
         
         self.configure(bg=self.default_color,
@@ -57,19 +58,27 @@ class Slot(Button):
             return
         
         plant = game.player.selected_plant.plant
+        new_living_plant = None
         if isinstance(plant, Sunflower):
-            new_living_plant = LivingSunflower(plant, self)
-        else:
-            new_living_plant = LivingPlant(plant, self)
+            sf_plant = cast(Sunflower, plant)
+            new_living_plant = LivingSunflower(sf_plant, self)
+            new_living_plant.lastly_produced = time() - plant.suns_cooldown + 5
         
+        if isinstance(plant, Peashooter):
+            ps_plant = cast(Peashooter, plant)
+            new_living_plant = LivingPeashooter(ps_plant, self)
+        
+        if not new_living_plant:
+            return
         
         self.taken_by = new_living_plant
         
         game.player.suns.set(game.player.suns.get() - plant.cost)
         
         slot_text = str.upper(plant.name)
-        for entity in self.entities:
-            slot_text += " " + entity.name
+        for entity in self.lane.entities:
+            if self.x < entity.x <= self.x + 1:
+                slot_text += " " + entity.name
         
         self.configure(text=slot_text)
         game.living_plants.append(new_living_plant)
@@ -81,30 +90,61 @@ class Slot(Button):
         game.player.selected_plant.last_used = time()
         game.player.selected_plant = None
 
+class HouseSlot(Button):
+    def __init__(self,
+                 master: Frame,
+                 taken_by: Lawnmoyer | None,
+                 lane: "Lane | None" = None,
+                 entities: list[LivingZombie] = []):
+        super().__init__(master)
+        self.taken_by = taken_by
+        self.entities = entities
+        self.lane = lane
+        
+        self.configure(bg='dimgray',
+                       width=20,
+                       height=8,
+                       borderwidth=0,
+                       text=self.taken_by.name.upper() if self.taken_by else "")
+
+@dataclass
+class Lane:
+    house_slot: HouseSlot
+    lawnmoyer: RollingLawnmoyer | None = None
+    slots: list[Slot] = field(default_factory= lambda: [])
+    entities: list[LivingZombie] = field(default_factory= lambda: [])
+    
+    def append(self, slot: Slot):
+        self.slots.append(slot)
+    
+    def _distance_key(self, entity: LivingZombie) -> float:
+        return entity.x
+    
+    def get_entities(self) -> list[LivingZombie]:
+        """Returns a list of living zombies sorted by their closeness to the house"""
+        return sorted(self.entities, key=self._distance_key)
+
 @dataclass
 class Player:
     master: Tk
     unlocked_plants: list[Plant] = field(default_factory=lambda: list(PLANTS.values()))
-    selected_plant: SelectablePlant | None = None
+    selected_plant: PlantSelector | None = None
     SUNS_EARN_RATE = 25 
     SUNS_COOLDOWN = 10 # seconds
     
     def __post_init__(self):
-        self.suns = IntVar(self.master, 50)
+        self.suns = IntVar(self.master, 5000)
         self.lastly_earned_suns = time()
     
-    def select_plant(self, selectable_plant: SelectablePlant):
+    def select_plant(self, selectable_plant: PlantSelector):
         time_elapsed = time() - selectable_plant.last_used
         if time_elapsed < selectable_plant.plant.cooldown:
             return
         
-        if self.selected_plant:
-            self.selected_plant.configure(
-                bg=self.selected_plant.default_color
-            )
+        if self.selected_plant and self.selected_plant == selectable_plant:
             self.selected_plant = None
-        
-        self.selected_plant = selectable_plant
+        else:
+            self.selected_plant = selectable_plant
 
     def add_suns(self, suns: int):
         self.suns.set(max(0, self.suns.get() + suns))
