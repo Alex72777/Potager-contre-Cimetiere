@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from plantsClass import Plant, PLANTS
-from entityClass import Lawnmoyer, LivingPlant, LivingZombie
+from plantsClass import Plant, Sunflower, PLANTS
+from entityClass import Lawnmoyer, LivingPlant, LivingZombie, LivingSunflower
 from tkinter import Button, Frame, IntVar, Tk
 from time import time
 from typing import TYPE_CHECKING
@@ -20,8 +20,8 @@ class SelectablePlant(Button):
         
         self.configure(
             bg=self.default_color,
-            width=10,
-            height=2,
+            width=15,
+            height=3,
             borderwidth=1,
             text=self.plant.name,
         )
@@ -39,10 +39,11 @@ class Slot(Button):
         self.entities = entities
         self.x, self.y = x, y
         self.pos = pos
+        self.default_color = "green2" if self.x % 2 else 'chartreuse3'
         
-        self.configure(bg="green2" if self.x % 2 else 'chartreuse3',
-                       width=10,
-                       height=4,
+        self.configure(bg=self.default_color,
+                       width=20,
+                       height=8,
                        borderwidth=0)
     
     def place_plant(self, game: "Game"):
@@ -56,7 +57,12 @@ class Slot(Button):
             return
         
         plant = game.player.selected_plant.plant
-        new_living_plant = LivingPlant(plant)
+        if isinstance(plant, Sunflower):
+            new_living_plant = LivingSunflower(plant, self)
+        else:
+            new_living_plant = LivingPlant(plant, self)
+        
+        
         self.taken_by = new_living_plant
         
         game.player.suns.set(game.player.suns.get() - plant.cost)
@@ -84,7 +90,7 @@ class Player:
     SUNS_COOLDOWN = 10 # seconds
     
     def __post_init__(self):
-        self.suns = IntVar(self.master, 100)
+        self.suns = IntVar(self.master, 50)
         self.lastly_earned_suns = time()
     
     def select_plant(self, selectable_plant: SelectablePlant):
@@ -98,9 +104,7 @@ class Player:
             )
             self.selected_plant = None
         
-        can_place_plant = self.suns.get() >= selectable_plant.plant.cost and time() - selectable_plant.last_used >= selectable_plant.plant.cooldown
-        
         self.selected_plant = selectable_plant
-        selectable_plant.configure(
-            bg=selectable_plant.hovered_color if can_place_plant else 'red'
-        )
+
+    def add_suns(self, suns: int):
+        self.suns.set(max(0, self.suns.get() + suns))

@@ -23,9 +23,11 @@ class Sunflower(Plant):
     def __init__(self,
                  name,
                  cost,
-                 suns_cooldown):
+                 suns_cooldown,
+                 suns_income):
         super().__init__(name=name, cost=cost, cooldown=7.5, health=300)
         self.suns_cooldown = suns_cooldown
+        self.suns_income = suns_income
 
 class Wallnut(Plant):
     def __init__(self,
@@ -38,7 +40,7 @@ class Wallnut(Plant):
 PEASHOOTER = Peashooter(name='Peashooter', cost=100)
 SNOW_PEA = Peashooter(name='Snow Pea', cost=175, frozen_projectile=True)
 REPEATER = Peashooter(name="Repeater", cost=200, pea_damage=40,)
-SUNFLOWER = Sunflower(name="Sunflower", cost=50, suns_cooldown=24.25)
+SUNFLOWER = Sunflower(name="Sunflower", cost=50, suns_cooldown=24.25, suns_income=25)
 WALLNUT = Wallnut(name="Wall-nut", cost=50, health=4000)
 
 PLANTS = {
