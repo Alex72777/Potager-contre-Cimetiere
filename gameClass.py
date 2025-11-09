@@ -5,6 +5,7 @@ from entityClass import LivingPlant, LivingZombie, LivingSunflower, LivingPeasho
 from plantsClass import Sunflower, Peashooter, Wallnut
 from time import time
 from typing import cast
+from math import floor
 
 class Game(Tk):
     def __init__(self, 
@@ -19,11 +20,9 @@ class Game(Tk):
         self.plant_selectors: list[PlantSelector] = []
         self.suns_earn_cooldown = DoubleVar(self, value=self.player.SUNS_COOLDOWN)
         self.waves: dict[int, list[Zombie]] = {}
-        self.board = []
+        self.board: list[Lane] = []
         self.speed = 1
-        self.living_plants: list[LivingPlant] = []
         self.lawnmoyers: list[Lawnmoyer] = []
-        self.lanes: list[Lane] = []
     
     def set_waves(self, waves: dict[int, list[Zombie]]):
         if waves:
@@ -41,11 +40,11 @@ class Game(Tk):
             board_frame.rowconfigure(i, pad=10)
             house_frame.rowconfigure(i, pad=10)
         
-        board: list[Lane] = []
+        board = []
         for y in range(self.board_height):
             house_slot = HouseSlot(house_frame, Lawnmoyer())
             house_slot.grid(row=y, column=0)
-            new_lane = Lane(house_slot)
+            new_lane = Lane(house_slot, y)
             new_lane.house_slot = house_slot
             board.append(new_lane)
             
@@ -55,6 +54,7 @@ class Game(Tk):
                 slot.grid(column=x, row=y)
                 new_lane.append(slot)
         self.board = board
+        self.board[2].entities.append(LivingZombie(ZOMBIES['classic_zombie'], 7.5, board[2]))
         self.board[2].entities.append(LivingZombie(ZOMBIES['classic_zombie'], 8, board[2]))
         deck_frame = Frame(game_frame, bg='grey', padx=5, pady=5)
         
@@ -80,8 +80,7 @@ class Game(Tk):
         self.mainloop()
     
     def tick(self, last_tick: float):
-        dt = time() - last_tick
-        
+        dt = (time() - last_tick)
         # Plant selectors ticking
         
         for plant_selector in self.plant_selectors: 
@@ -138,7 +137,53 @@ class Game(Tk):
                     living_plant.slot.configure(text=f"{ps_plant.name.upper()} ({round(ps_plant.pea_launch_cooldown - (time() - living_plant.lastly_shot), 1)})")
                 else:
                     living_plant.slot.configure(text=f"{ps_plant.name.upper()}")
-                        
-                    
         
+        # Living zombies ticking
+        
+        slot_text = ""
+        for lane in self.board:
+            for zombie in lane.get_entities():
+                slot = zombie.lane.slots[round(zombie.x)]
+                if not slot.taken_by:
+                    slot.configure(text='')
+                
+                if isinstance(zombie, LivingZombie):
+                    furthest_plant = zombie.lane.furthest_plant
+                    if furthest_plant and furthest_plant.x <= zombie.x < furthest_plant.x + zombie.attack_range and time() - zombie.last_attacked >= zombie.attack_cooldown: # Attack range
+                        furthest_plant.damage(zombie.attack_damage)
+                        print(furthest_plant.health)
+                        zombie.last_attacked = time()
+                    
+                    if furthest_plant:
+                        zombie.x = max(furthest_plant.x, zombie.x - zombie.speed * .01)
+                    else:
+                        zombie.x = max(0, zombie.x - zombie.speed * .01)
+                    
+                    if zombie.x == 0:
+                        # GAME OVER LOGIC
+                        pass
+                    
+                    if zombie:
+                        lane.slots[floor(zombie.x) + 1].configure(text='')
+                        if not time() - zombie.last_attacked >= zombie.attack_cooldown:
+                            slot_text += slot.cget('text') + f"{',' if slot.taken_by else ''}{zombie.name.upper()} [{round(zombie.health / zombie.health_scale * 100)}%] ({round(zombie.attack_cooldown - (time() - zombie.last_attacked), 1)})"
+                        else:
+                            slot_text += slot.cget('text') + f"{',' if slot.taken_by else ''}{zombie.name.upper()} [{round(zombie.health / zombie.health_scale * 100)}%]"
+                slot.configure(text=slot.cget('text') + slot_text)
+                    
         self.after(1, lambda: self.tick(time()))
+    
+    @property
+    def living_plants(self) -> list[LivingPlant]:
+        plants = []
+        for lane in self.board:
+            for slot in lane.slots:
+                if slot.taken_by: plants.append(slot.taken_by)
+        return plants
+
+    @property
+    def living_zombies(self) -> list[LivingZombie]:
+        zombies = []
+        for lane in self.board:
+            zombies += lane.entities
+        return zombies

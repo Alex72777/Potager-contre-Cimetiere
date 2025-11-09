@@ -19,6 +19,12 @@ class LivingPlant:
         self.health = self.health_scale
         self.lane = self.slot.lane
         self.x = self.slot.x + .5
+    
+    def damage(self, damages: int):
+        self.health = max(0, self.health - damages)
+        if not self.health:
+            self.slot.taken_by = None
+            del self
 
 class LivingSunflower(LivingPlant):
     def __init__(self, plant: Sunflower, slot: "Slot"):
@@ -41,18 +47,27 @@ class LivingPeashooter(LivingPlant):
 @dataclass
 class LivingZombie:
     zombie: Zombie
-    x: int
+    x: float
     lane: "Lane"
     
     def __post_init__(self):
         self.name = self.zombie.name
         self.health_scale = self.zombie.health
         self.health = self.health_scale
+        self.attack_damage = self.zombie.attack_damage
+        self.attack_range = self.zombie.attack_range
+        self.attack_cooldown = self.zombie.attack_cooldown
+        self.speed = self.zombie.speed
+        self.last_attacked = 0.
     
     def damage(self, damages: int):
         self.health = max(0, self.health - damages)
         if not self.health:
+            slot: Slot = self.lane.slots[round(self.x)]
             self.lane.entities.pop(self.lane.entities.index(self))
+            if not slot.taken_by:
+                slot.configure(text='')
+            del self
 
 @dataclass
 class Lawnmoyer:

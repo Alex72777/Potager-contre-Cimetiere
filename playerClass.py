@@ -68,20 +68,13 @@ class Slot(Button):
             ps_plant = cast(Peashooter, plant)
             new_living_plant = LivingPeashooter(ps_plant, self)
         
+        print(new_living_plant)
         if not new_living_plant:
             return
         
         self.taken_by = new_living_plant
         
         game.player.suns.set(game.player.suns.get() - plant.cost)
-        
-        slot_text = str.upper(plant.name)
-        for entity in self.lane.entities:
-            if self.x < entity.x <= self.x + 1:
-                slot_text += " " + entity.name
-        
-        self.configure(text=slot_text)
-        game.living_plants.append(new_living_plant)
         
         game.player.selected_plant.configure(
                 bg='grey'
@@ -110,6 +103,7 @@ class HouseSlot(Button):
 @dataclass
 class Lane:
     house_slot: HouseSlot
+    y: int
     lawnmoyer: RollingLawnmoyer | None = None
     slots: list[Slot] = field(default_factory= lambda: [])
     entities: list[LivingZombie] = field(default_factory= lambda: [])
@@ -123,6 +117,13 @@ class Lane:
     def get_entities(self) -> list[LivingZombie]:
         """Returns a list of living zombies sorted by their closeness to the house"""
         return sorted(self.entities, key=self._distance_key)
+
+    @property
+    def furthest_plant(self) -> LivingPlant | None:
+        for i in range(len(self.slots) - 1, 0, -1):
+            if self.slots[i].taken_by:
+                living_plant = cast(LivingPlant, self.slots[i].taken_by)
+                return living_plant
 
 @dataclass
 class Player:
