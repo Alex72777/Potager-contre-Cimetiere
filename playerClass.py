@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from plantsClass import Plant, PLANTS, Sunflower, Peashooter
-from entityClass import Lawnmoyer, RollingLawnmoyer, LivingPlant, LivingZombie, LivingSunflower, LivingPeashooter
+from entityClass import Lawnmoyer, LivingLawnmoyer, LivingPlant, LivingZombie, LivingSunflower, LivingPeashooter
 from tkinter import Button, Frame, IntVar, Tk
 from time import time
 from math import floor
@@ -108,33 +108,57 @@ class HouseSlot(Button):
 class Lane:
     house_slot: HouseSlot
     y: int
-    lawnmoyer: RollingLawnmoyer | None = None
     slots: list[Slot] = field(default_factory= lambda: [])
-    entities: list[LivingZombie] = field(default_factory= lambda: [])
+    plantes: list[LivingPlant | RollingLawnmoyer] = field(default_factory= lambda: [])
+    zombies: list[LivingZombie] = field(default_factory= lambda: [])
 
-    def append(self, slot: Slot) -> None:
+    def append_slot(self, slot: Slot) -> None:
         self.slots.append(slot)
 
-    def _distance_key(self, entity: LivingZombie) -> float:
-        return entity.x
+    def empiler_zombie(self, zombie: LivingZombie) -> None:
+        """
+        Docstring
+        """
+        self.zombies.append(zombie)
 
-    def get_entities(self) -> list[LivingZombie]:
-        """Returns a list of living zombies sorted by their closeness to the house"""
-        return sorted(self.entities, key=self._distance_key)
+    def empiler_plante(self, plante: LivingPlant) -> None:
+        """
+        Docstring
+        """
+        self.plantes.append(plante)
 
-    def next_plant_from(self, zombie: LivingZombie) -> LivingPlant | None: # Nul! faire pile pour les plantes
-        for i in range(floor(zombie.x), 0, -1):
-            if self.slots[i].taken_by:
-                living_plant = cast(LivingPlant, self.slots[i].taken_by)
-                return living_plant
+    def depiler_zombie(self) -> LivingZombie:
+        """
+        Docstring
+        """
+        return self.zombies.pop()
+
+    def depiler_plante(self) -> LivingPlant:
+        """
+        Docstring
+        """
+        return self.plantes.pop()
+
+    # def _distance_key(self, entity: LivingZombie) -> float:
+    #     return entity.x
+
+    # def get_entities(self) -> list[LivingZombie]:
+    #     """Returns a list of living zombies sorted by their closeness to the house"""
+    #     return sorted(self.entities, key=self._distance_key)
+
+    # def next_plant_from(self, zombie: LivingZombie) -> LivingPlant | None: # Nul! faire pile pour les plantes
+    #     for i in range(floor(zombie.x), 0, -1):
+    #         if self.slots[i].taken_by:
+    #             living_plant = cast(LivingPlant, self.slots[i].taken_by)
+    #             return living_plant
 
 
-    @property
-    def furthest_plant(self) -> LivingPlant | None: # idem, faire pile
-        for i in range(len(self.slots) - 1, 0, -1):
-            if self.slots[i].taken_by:
-                living_plant = cast(LivingPlant, self.slots[i].taken_by)
-                return living_plant
+    # @property
+    # def furthest_plant(self) -> LivingPlant | None: # idem, faire pile
+    #     for i in range(len(self.slots) - 1, 0, -1):
+    #         if self.slots[i].taken_by:
+    #             living_plant = cast(LivingPlant, self.slots[i].taken_by)
+    #             return living_plant
 
 @dataclass
 class Player:

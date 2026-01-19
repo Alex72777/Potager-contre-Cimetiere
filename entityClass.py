@@ -90,7 +90,7 @@ class Lawnmoyer:
     speed: float = 2
 
 @dataclass
-class RollingLawnmoyer:
+class LivingLawnmoyer:
     lawnmoyer: Lawnmoyer
     lane: "Lane"
 
