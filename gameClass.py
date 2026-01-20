@@ -3,7 +3,7 @@ from playerClass import Player, PlantSelector, Slot, Lane, HouseSlot
 from zombiesClass import Zombie, ZOMBIES
 from entityClass import LivingPlant, LivingZombie, LivingSunflower, LivingPeashooter, Lawnmoyer
 from plantsClass import Sunflower, Peashooter, Wallnut
-from time import time
+from time import monotonic
 from typing import cast
 from math import floor
 
@@ -11,7 +11,7 @@ class Game(Tk):
     def __init__(self,
                  difficulty_rating: float = 1,
                  board_height: int = 5,
-                 board_width: int = 9):
+                 board_width: int = 9) -> None:
         super().__init__()
         self.player = Player(self)
         self.difficulty_rating = difficulty_rating
@@ -24,13 +24,13 @@ class Game(Tk):
         self.speed = 1
         self.lawnmoyers: list[Lawnmoyer] = []
 
-    def set_waves(self, waves: dict[int, list[Zombie]]):
+    def set_waves(self, waves: dict[int, list[Zombie]]) -> None:
         if waves:
             self.waves = waves
         else:
             self.waves = {}
 
-    def draw(self):
+    def draw(self) -> None:
         game_frame = Frame(self, bg='gray64', padx=10, pady=10)
 
         house_frame = Frame(game_frame, bg='gray')
@@ -40,7 +40,7 @@ class Game(Tk):
             board_frame.rowconfigure(i, pad=10)
             house_frame.rowconfigure(i, pad=10)
 
-        board = []
+        board: list[Lane] = []
         for y in range(self.board_height):
             house_slot = HouseSlot(house_frame, Lawnmoyer())
             house_slot.grid(row=y, column=0)
@@ -49,10 +49,10 @@ class Game(Tk):
             board.append(new_lane)
 
             for x in range(self.board_width):
-                slot = Slot(board_frame, x, y, (x, y), new_lane)
+                slot = Slot(board_frame, x, new_lane)
                 slot.configure(command = lambda game = self, slot = slot: slot.place_plant(game))
                 slot.grid(column=x, row=y)
-                new_lane.append(slot)
+                new_lane.append_slot(slot)
         self.board = board
         # self.board[2].entities.append(LivingZombie(ZOMBIES['classic_zombie'], 7.5, board[2]))
         # self.board[2].entities.append(LivingZombie(ZOMBIES['classic_zombie'], 8, board[2]))
@@ -76,16 +76,16 @@ class Game(Tk):
 
         game_frame.pack(fill='both', expand=True)
 
-        self.after(1, lambda: self.tick(time()))
+        self.after(1, lambda: self.tick(monotonic()))
         self.mainloop()
 
     def tick(self, last_tick: float):
-        current_tick = (time())
+        current_tick = (monotonic())
         dt = current_tick - last_tick
         # Plant selectors ticking
 
         for plant_selector in self.plant_selectors:
-            if time() - plant_selector.last_used > plant_selector.plant.cooldown:
+            if monotonic() - plant_selector.last_used > plant_selector.plant.cooldown:
                 plant_selector.configure(
                     text=f"{plant_selector.plant.name} [{plant_selector.plant.cost}]",
                     bg=plant_selector.default_color if self.player.selected_plant != plant_selector else plant_selector.hovered_color
@@ -103,7 +103,7 @@ class Game(Tk):
 
         # Player's passive suns income
 
-        if time() - self.player.lastly_earned_suns >= self.player.SUNS_COOLDOWN:
+        if monotonic() - self.player.lastly_earned_suns >= self.player.SUNS_COOLDOWN:
             self.player.add_suns(self.player.SUNS_EARN_RATE)
             self.player.lastly_earned_suns = current_tick
         else:
@@ -119,7 +119,7 @@ class Game(Tk):
                     living_plant.lastly_produced = current_tick
                     living_plant.blinked_slot = current_tick
 
-                living_plant.slot.configure(text=f"{living_plant.name.upper()} ({round(sf_plant.suns_cooldown - (time() - living_plant.lastly_produced), 1)})")
+                living_plant.slot.configure(text=f"{living_plant.name.upper()} ({round(sf_plant.suns_cooldown - (monotonic() - living_plant.lastly_produced), 1)})")
                 if current_tick - living_plant.blinked_slot >= 1:
                     living_plant.slot.configure(bg=living_plant.slot.default_color)
                 else:
@@ -135,7 +135,7 @@ class Game(Tk):
                     living_plant.lastly_shot = current_tick
 
                 if living_plant.lane.get_entities():
-                    living_plant.slot.configure(text=f"{ps_plant.name.upper()} ({round(ps_plant.pea_launch_cooldown - (time() - living_plant.lastly_shot), 1)})")
+                    living_plant.slot.configure(text=f"{ps_plant.name.upper()} ({round(ps_plant.pea_launch_cooldown - (monotonic() - living_plant.lastly_shot), 1)})")
                 else:
                     living_plant.slot.configure(text=f"{ps_plant.name.upper()}")
 
@@ -168,7 +168,7 @@ class Game(Tk):
                         if floor(zombie.x) < self.board_width - 1:
                             lane.slots[floor(zombie.x) + 1].configure(text='')
                         if not current_tick - zombie.last_attacked >= zombie.attack_cooldown:
-                            slot_text += slot.cget('text') + f"{',' if slot.taken_by else ''}{zombie.name.upper()} [{round(zombie.health / zombie.health_scale * 100)}%] ({round(zombie.attack_cooldown - (time() - zombie.last_attacked), 1)})"
+                            slot_text += slot.cget('text') + f"{',' if slot.taken_by else ''}{zombie.name.upper()} [{round(zombie.health / zombie.health_scale * 100)}%] ({round(zombie.attack_cooldown - (monotonic() - zombie.last_attacked), 1)})"
                         else:
                             slot_text += slot.cget('text') + f"{',' if slot.taken_by else ''}{zombie.name.upper()} [{round(zombie.health / zombie.health_scale * 100)}%]"
                 slot.configure(text=slot.cget('text') + slot_text)

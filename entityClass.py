@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from plantsClass import Plant, Sunflower, Peashooter
 from zombiesClass import Zombie
 from typing import TYPE_CHECKING
-from time import time
+from time import monotonic
 
 if TYPE_CHECKING:
     from gameClass import Slot
@@ -19,6 +19,7 @@ class LivingPlant:
         self.health = self.health_scale
         self.lane = self.slot.lane
         self.x = self.slot.x + .5
+        self.slot.taken_by = self
 
     def damage(self, damages: int):
         """
@@ -53,7 +54,7 @@ class LivingPeashooter(LivingPlant):
         self.pea_launch_cooldown = plant.pea_launch_cooldown
         self.pea_damage = plant.pea_damage
         self.frozen_projectile = plant.frozen_projectile
-        self.lastly_shot = time() - self.pea_launch_cooldown + 1 # Timestamp (-1 second cooldown first time)
+        self.lastly_shot = monotonic() - self.pea_launch_cooldown + 1 # Timestamp (-1 second cooldown first time)
 
     """
     Faire les méthodes de ticking et tout ici et pas dans la boucle principale (fausse POO)
@@ -77,12 +78,10 @@ class LivingZombie:
 
     def damage(self, damages: int):
         self.health = max(0, self.health - damages)
-        if not self.health:
-            slot = self.lane.slots[round(self.x)]
-            self.lane.entities.pop(self.lane.entities.index(self))
-            if not slot.taken_by:
-                slot.configure(text='')
-            del self
+        # if self.health == 0:
+        #     new_kill = self.lane.depiler_zombie()
+        #     print(f"{new_kill.name} tué.")
+        #     del self
 
 @dataclass
 class Lawnmoyer:

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from plantsClass import Plant, PLANTS, Sunflower, Peashooter
 from entityClass import Lawnmoyer, LivingLawnmoyer, LivingPlant, LivingZombie, LivingSunflower, LivingPeashooter
 from tkinter import Button, Frame, IntVar, Tk
-from time import time
+from time import monotonic
 from math import floor
 from typing import TYPE_CHECKING, cast
 
@@ -31,14 +31,11 @@ class Slot(Button):
     def __init__(self,
                  master: Frame,
                  x: int,
-                 y: int,
-                 pos: tuple,
                  lane: "Lane",
                  taken_by: LivingPlant | None = None,):
         super().__init__(master)
         self.taken_by = taken_by
-        self.x, self.y = x, y
-        self.pos = pos
+        self.x = x
         self.lane = lane
         self.default_color = "green2" if self.x % 2 else 'chartreuse3'
 
@@ -51,48 +48,46 @@ class Slot(Button):
         """Updates button text accordingly to plant and/or zombies on it."""
         pass
 
-    def place_plant(self, game: "Game"):
+    def place_plant(self, game: "Game") -> None:
         if not game.player.selected_plant:
             return
 
-        if self.taken_by:
+        if self.lane.len_plantes >= self.lane.len_slots:
             return
 
         if game.player.suns.get() < game.player.selected_plant.plant.cost:
             return
 
-        plant = game.player.selected_plant.plant
+        plant: Plant = game.player.selected_plant.plant
         new_living_plant = None
         if isinstance(plant, Sunflower):
-            sf_plant = cast(Sunflower, plant)
-            new_living_plant = LivingSunflower(sf_plant, self)
-            new_living_plant.lastly_produced = time() - plant.suns_cooldown + 5
+            # sf_plant = cast(Sunflower, plant)
+            new_living_plant = LivingSunflower(plant, self)
+            new_living_plant.lastly_produced = monotonic() - plant.suns_cooldown + 5
 
         if isinstance(plant, Peashooter):
-            ps_plant = cast(Peashooter, plant)
-            new_living_plant = LivingPeashooter(ps_plant, self)
+            # ps_plant = cast(Peashooter, plant)
+            new_living_plant = LivingPeashooter(plant, self)
 
-        print(new_living_plant)
+        print(new_living_plant) # debug
         if not new_living_plant:
             return
 
-        self.taken_by = new_living_plant
-
-        game.player.add_suns(-plant.cost)
+        game.player.add_suns(-(plant.cost))
 
         game.player.selected_plant.configure(
                 bg='grey'
             )
 
-        game.player.selected_plant.last_used = time()
+        game.player.selected_plant.last_used = monotonic()
         game.player.selected_plant = None
 
 class HouseSlot(Button):
     def __init__(self,
                  master: Frame,
+                 lane: Lane,
                  taken_by: Lawnmoyer | None,
-                 lane: "Lane | None" = None,
-                 entities: list[LivingZombie] = []):
+                 entities: list[LivingZombie] = []) -> None:
         super().__init__(master)
         self.taken_by = taken_by
         self.entities = entities
@@ -102,15 +97,21 @@ class HouseSlot(Button):
                        width=20,
                        height=8,
                        borderwidth=0,
-                       text=self.taken_by.name.upper() if self.taken_by else "")
+                       text=(self.taken_by.name.upper() if self.taken_by else ""))
 
 @dataclass
 class Lane:
+    """
+    Classe contenant la pile des zombies et la pile des plantes.
+    """
     house_slot: HouseSlot
     y: int
     slots: list[Slot] = field(default_factory= lambda: [])
-    plantes: list[LivingPlant | RollingLawnmoyer] = field(default_factory= lambda: [])
+    plantes: list[LivingPlant | LivingLawnmoyer] = field(default_factory= lambda: [])
     zombies: list[LivingZombie] = field(default_factory= lambda: [])
+
+    def append_plante(self, livingPlant: LivingPlant)-> None:
+        livingPlant.slot.taken_by
 
     def append_slot(self, slot: Slot) -> None:
         self.slots.append(slot)
@@ -127,17 +128,35 @@ class Lane:
         """
         self.plantes.append(plante)
 
-    def depiler_zombie(self) -> LivingZombie:
+    def depiler_zombie(self) -> LivingZombie | None:
         """
         Docstring
         """
-        return self.zombies.pop()
+        val: LivingZombie = self.zombies.pop()
+        if not isinstance(val, LivingZombie):
+            return val
+        return None
 
-    def depiler_plante(self) -> LivingPlant:
+    def depiler_plante(self) -> LivingPlant | None:
         """
         Docstring
         """
-        return self.plantes.pop()
+        val: LivingLawnmoyer | LivingPlant = self.plantes.pop()
+        if not isinstance(val, LivingLawnmoyer):
+            return val
+        return None
+
+    @property
+    def len_zombie(self) -> int:
+        return len(self.zombies)
+
+    @property
+    def len_plantes(self) -> int:
+        return len(self.plantes)
+
+    @property
+    def len_slots(self) -> int:
+        return len(self.slots)
 
     # def _distance_key(self, entity: LivingZombie) -> float:
     #     return entity.x
@@ -176,18 +195,18 @@ class Player:
     """
 
     master: Tk
-    unlocked_plants: list[Plant] = field(default_factory=lambda: list(PLANTS.values()))
+    unlocked_plants = field(default_factory=lambda: list(PLANTS.values()))
     selected_plant: PlantSelector | None = None
     SUNS_EARN_RATE = 25
     SUNS_COOLDOWN = 10 # seconds
     DEFAULT_SUNS = 100
 
     def __post_init__(self):
-        self.suns = IntVar(self.master, self.default_suns)
-        self.lastly_earned_suns = time()
+        self.suns = IntVar(self.master, self.DEFAULT_SUNS)
+        self.lastly_earned_suns = monotonic()
 
     def select_plant(self, selectable_plant: PlantSelector) -> None:
-        time_elapsed = time() - selectable_plant.last_used
+        time_elapsed: float = monotonic() - selectable_plant.last_used
         if time_elapsed < selectable_plant.plant.cooldown:
             return
 

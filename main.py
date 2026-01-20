@@ -1,7 +1,6 @@
 from gameClass import Game
-from playerClass import Player
 
-def main():
+def main() -> None:
     game = Game()
     game.draw()
 
