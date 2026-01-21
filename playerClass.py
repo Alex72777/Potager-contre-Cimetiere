@@ -62,12 +62,12 @@ class Slot(Button):
         new_living_plant = None
         if isinstance(plant, Sunflower):
             # sf_plant = cast(Sunflower, plant)
-            new_living_plant = LivingSunflower(plant, self)
+            new_living_plant = LivingSunflower(plant, self, game)
             new_living_plant.lastly_produced = monotonic() - plant.suns_cooldown + 5
 
         if isinstance(plant, Peashooter):
             # ps_plant = cast(Peashooter, plant)
-            new_living_plant = LivingPeashooter(plant, self)
+            new_living_plant = LivingPeashooter(plant, self, game)
 
         print(new_living_plant) # debug
         if not new_living_plant:
@@ -143,6 +143,12 @@ class Lane:
         if not isinstance(val, LivingLawnmoyer):
             return val
         return None
+
+    def get_zombie(self) -> LivingZombie | None:
+        if len(self.zombies) == 0:
+            return None
+
+        return self.zombies[-1]
 
     @property
     def len_zombie(self) -> int:

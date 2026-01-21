@@ -111,33 +111,7 @@ class Game(Tk):
 
         # Living plants ticking
 
-        for living_plant in self.living_plants:
-            if isinstance(living_plant, LivingSunflower): # Sunflowers
-                sf_plant: Sunflower = cast(Sunflower, living_plant.plant)
-                if current_tick - living_plant.lastly_produced >= sf_plant.suns_cooldown:
-                    self.player.add_suns(sf_plant.suns_income)
-                    living_plant.lastly_produced = current_tick
-                    living_plant.blinked_slot = current_tick
-
-                living_plant.slot.configure(text=f"{living_plant.name.upper()} ({round(sf_plant.suns_cooldown - (monotonic() - living_plant.lastly_produced), 1)})")
-                if current_tick - living_plant.blinked_slot >= 1:
-                    living_plant.slot.configure(bg=living_plant.slot.default_color)
-                else:
-                    living_plant.slot.configure(bg='yellow')
-
-            if isinstance(living_plant, LivingPeashooter): # Peashooters
-                ps_plant: Peashooter = cast(Peashooter, living_plant.plant)
-                if current_tick - living_plant.lastly_shot >= ps_plant.pea_launch_cooldown:
-                    for shot in range(ps_plant.amount_of_peas):
-                        lane_entities = living_plant.lane.get_entities()
-                        if lane_entities and lane_entities[0].x >= living_plant.x:
-                            lane_entities[0].damage(ps_plant.pea_damage)
-                    living_plant.lastly_shot = current_tick
-
-                if living_plant.lane.get_entities():
-                    living_plant.slot.configure(text=f"{ps_plant.name.upper()} ({round(ps_plant.pea_launch_cooldown - (monotonic() - living_plant.lastly_shot), 1)})")
-                else:
-                    living_plant.slot.configure(text=f"{ps_plant.name.upper()}")
+        """Merged into living entities"""
 
         # Living zombies ticking
 
