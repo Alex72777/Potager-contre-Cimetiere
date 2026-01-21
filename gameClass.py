@@ -175,17 +175,17 @@ class Game(Tk):
 
         self.after(1, lambda: self.tick(current_tick))
 
-    @property
-    def living_plants(self) -> list[LivingPlant]:
-        plants = []
-        for lane in self.board:
-            for slot in lane.slots:
-                if slot.taken_by: plants.append(slot.taken_by)
-        return plants
+    # @property
+    # def living_plants(self) -> list[LivingPlant]:
+    #     plants = []
+    #     for lane in self.board:
+    #         for slot in lane.slots:
+    #             if slot.taken_by: plants.append(slot.taken_by)
+    #     return plants
 
-    @property
-    def living_zombies(self) -> list[LivingZombie]:
-        zombies = []
-        for lane in self.board:
-            zombies += lane.entities
-        return zombies
+    # @property
+    # def living_zombies(self) -> list[LivingZombie]:
+    #     zombies = []
+    #     for lane in self.board:
+    #         zombies += lane.entities
+    #     return zombies

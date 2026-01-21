@@ -37,7 +37,7 @@ class Slot(Button):
         self.taken_by = taken_by
         self.x = x
         self.lane = lane
-        self.default_color = "green2" if self.x % 2 else 'chartreuse3'
+        self.default_color = ("green2" if self.x % 2 else 'chartreuse3')
 
         self.configure(bg=self.default_color,
                        width=20,
@@ -110,9 +110,6 @@ class Lane:
     plantes: list[LivingPlant | LivingLawnmoyer] = field(default_factory= lambda: [])
     zombies: list[LivingZombie] = field(default_factory= lambda: [])
 
-    def append_plante(self, livingPlant: LivingPlant)-> None:
-        livingPlant.slot.taken_by
-
     def append_slot(self, slot: Slot) -> None:
         self.slots.append(slot)
 
@@ -126,6 +123,7 @@ class Lane:
         """
         Docstring
         """
+        plante.slot.taken_by
         self.plantes.append(plante)
 
     def depiler_zombie(self) -> LivingZombie | None:

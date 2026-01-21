@@ -31,6 +31,12 @@ class LivingPlant:
             self.slot.taken_by = None
             del self
 
+    def update(self) -> None:
+        """
+        Méthode de ticking.
+        """
+        pass
+
 class LivingSunflower(LivingPlant):
     def __init__(self, plant: Sunflower, slot: "Slot"):
         if not isinstance(plant, Sunflower):
@@ -43,9 +49,15 @@ class LivingSunflower(LivingPlant):
     Faire les méthodes de ticking et tout ici et pas dans la boucle principale (fausse POO)
     """
 
+    def update(self) -> None:
+        """
+        Méthode de ticking pour la classe LivingSunflower.
+        """
+        pass
+
 class LivingPeashooter(LivingPlant):
     """
-    The peashooter you see on the board
+    La représentation vivante de l'entité.
     """
     def __init__(self, plant: Peashooter, slot: "Slot"):
         if not isinstance(plant, Peashooter):
@@ -59,6 +71,12 @@ class LivingPeashooter(LivingPlant):
     """
     Faire les méthodes de ticking et tout ici et pas dans la boucle principale (fausse POO)
     """
+
+    def update(self) -> None:
+        """
+        Méthode de ticking pour la classe LivingPeashooter.
+        """
+        pass
 
 @dataclass
 class LivingZombie:
