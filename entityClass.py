@@ -1,15 +1,17 @@
 from dataclasses import dataclass
-from plantsClass import Plant, Sunflower, Peashooter
+from plantsClass import PLANTS
 from zombiesClass import Zombie
 from typing import TYPE_CHECKING
 from time import monotonic
 
 if TYPE_CHECKING:
-    from gameClass import Slot
+    from gameClass import Slot, Game
     from playerClass import Lane
+    from plantsClass import Plant, Sunflower, Peashooter
 
 @dataclass
 class LivingPlant:
+    master: Game
     plant: Plant
     slot: "Slot"
 
@@ -31,29 +33,46 @@ class LivingPlant:
             self.slot.taken_by = None
             del self
 
-    def update(self) -> None:
+    def update(self, current_tick: int, last_tick: int) -> None:
         """
         Méthode de ticking.
         """
         pass
 
+    def sous_texte(self, current_tick: int, last_tick: int) -> str:
+        """
+        Représentation textuelle utilsée pour les emplacements dans le jardin
+        """
+        return self.name.upper()
+
 class LivingSunflower(LivingPlant):
-    def __init__(self, plant: Sunflower, slot: "Slot"):
+    def __init__(self, plant: Sunflower, slot: "Slot", master: Game):
         if not isinstance(plant, Sunflower):
             raise TypeError("LivingSunflower requires a Sunflower class instance")
-        super().__init__(plant=plant, slot=slot)
+        super().__init__(plant=plant, slot=slot, master=master)
         self.lastly_produced: float = 0 # Timestamp of last production
         self.blinked_slot: float = 0 # used for the production notification (timestamp)
 
-    """
-    Faire les méthodes de ticking et tout ici et pas dans la boucle principale (fausse POO)
-    """
-
-    def update(self) -> None:
+    def update(self, current_tick: int, last_tick: int) -> None:
         """
         Méthode de ticking pour la classe LivingSunflower.
         """
-        pass
+        if current_tick - self.lastly_produced >= PLANTS['sunflower'].suns_cooldown:
+            self.master.player.add_suns(PLANTS['sunflower'].suns_income)
+            self.lastly_produced = current_tick
+            self.blinked_slot = current_tick
+
+    def sous_texte(self, current_tick: int, last_tick: int) -> str:
+        return f"{self.name.upper()} ({round(PLANTS['sunflower'].suns_cooldown - (monotonic() - self.lastly_produced), 1)})"
+
+    def ui_update(self, current_tick: int, last_tick: int) -> dict:
+        """
+        Pour changer la couleur ici
+        """
+        if current_tick - self.blinked_slot >= 1:
+            return {"bg": self.slot.default_color} # ???? Nécessaire?
+        else:
+            return {"bg": "yellow"}
 
 class LivingPeashooter(LivingPlant):
     """
@@ -96,10 +115,15 @@ class LivingZombie:
 
     def damage(self, damages: int):
         self.health = max(0, self.health - damages)
-        # if self.health == 0:
-        #     new_kill = self.lane.depiler_zombie()
-        #     print(f"{new_kill.name} tué.")
-        #     del self
+
+    def update(self) -> None:
+        """
+        Méthode de ticking pour la classe LivingZombie.
+        """
+        if self.health == 0:
+            self.lane.depiler_zombie()
+            print(f"{self.name} tué.")
+            del self
 
 @dataclass
 class Lawnmoyer:
@@ -114,3 +138,9 @@ class LivingLawnmoyer:
     def __post_init__(self):
         self.name = self.lawnmoyer.name
         self.speed = self.lawnmoyer.speed
+
+    def update(self) -> None:
+        """
+        Méthode de ticking pour la classe LivingLawnmoyer.
+        """
+        pass
