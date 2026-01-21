@@ -107,7 +107,7 @@ class Lane:
     house_slot: HouseSlot
     y: int
     slots: list[Slot] = field(default_factory= lambda: [])
-    plantes: list[LivingPlant | LivingLawnmoyer] = field(default_factory= lambda: [])
+    plantes: list[LivingPlant] = field(default_factory= lambda: [])
     zombies: list[LivingZombie] = field(default_factory= lambda: [])
 
     def append_slot(self, slot: Slot) -> None:
@@ -149,6 +149,12 @@ class Lane:
             return None
 
         return self.zombies[-1]
+
+    def get_plante(self) -> LivingPlant | None:
+        if len(self.plantes) == 0:
+            return None
+
+        return self.plantes[-1]
 
     @property
     def len_zombie(self) -> int:

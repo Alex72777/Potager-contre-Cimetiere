@@ -7,13 +7,13 @@ from time import monotonic
 if TYPE_CHECKING:
     from gameClass import Slot, Game
     from playerClass import Lane
-    from plantsClass import Plant, Sunflower, Peashooter
+    from plantsClass import Plant, Sunflower, Peashooter, Lawnmoyer
 
 @dataclass
 class LivingPlant:
     master: Game
     plant: Plant
-    slot: "Slot"
+    slot: Slot
 
     def __post_init__(self):
         self.name = self.plant.name
@@ -47,9 +47,9 @@ class LivingPlant:
 
     def ui_update(self, current_tick: int, last_tick: int) -> dict:
         """
-
+        Docstring
         """
-        return {}
+        return {"priority": 0}
 
 class LivingSunflower(LivingPlant):
     def __init__(self, plant: Sunflower, slot: "Slot", master: Game):
@@ -64,13 +64,15 @@ class LivingSunflower(LivingPlant):
         """
         Méthode de ticking pour la classe LivingSunflower.
         """
-        if current_tick - self.lastly_produced >= PLANTS['sunflower'].suns_cooldown:
-            self.master.player.add_suns(PLANTS['sunflower'].suns_income)
+        sf_plant = PLANTS['sunflower']
+        if current_tick - self.lastly_produced >= sf_plant.suns_cooldown:
+            self.master.player.add_suns(sf_plant.suns_income)
             self.lastly_produced = current_tick
             self.blinked_slot = current_tick
 
     def sous_texte(self, current_tick: int, last_tick: int) -> str:
-        return f"{self.name.upper()} ({round(PLANTS['sunflower'].suns_cooldown - (monotonic() - self.lastly_produced), 1)})"
+        sf_plant = PLANTS['sunflower']
+        return f"{self.name.upper()} ({round(sf_plant.suns_cooldown - (monotonic() - self.lastly_produced), 1)})"
 
     def ui_update(self, current_tick: int, last_tick: int) -> dict:
         """
@@ -79,7 +81,7 @@ class LivingSunflower(LivingPlant):
         if current_tick - self.blinked_slot >= 1:
             return {"bg": self.slot.default_color} # ???? Nécessaire?
         else:
-            return {"bg": "yellow"}
+            return {"bg": "yellow", "priority": 1}
 
 class LivingPeashooter(LivingPlant):
     """
@@ -137,24 +139,52 @@ class LivingZombie:
     def damage(self, damages: int):
         self.health = max(0, self.health - damages)
 
-    def update(self) -> None:
+    def update(self, current_tick: int, last_tick: int) -> None:
+        dt = current_tick - last_tick
         """
         Méthode de ticking pour la classe LivingZombie.
         """
+
+        next_plant = self.lane.get_plante()
+        if (next_plant
+            and next_plant.x <= self.x < next_plant.x + self.attack_range
+            and current_tick - self.last_attacked >= self.attack_cooldown
+            ): # Attack range
+
+            next_plant.damage(self.attack_damage)
+            self.last_attacked = current_tick
+            # print(sep=.health, next_plant.health)
+
+        if next_plant:
+            self.x = max(next_plant.x, self.x - self.speed * dt)
+        else:
+            self.x = max(0, self.x - self.speed * dt)
+
+        if self.x == 0:
+            # lawnmoyers be cooking (if any)
+            pass
+
         if self.health == 0:
             self.lane.depiler_zombie()
             print(f"{self.name} tué.")
             del self
 
-@dataclass
-class Lawnmoyer:
-    name: str = "Lawnmoyer"
-    speed: float = 2
+    def sous_texte(self, current_tick: int, last_tick: int) -> str:
+        if not (current_tick - self.last_attacked >= self.attack_cooldown):
+            return f"{self.name.upper()} [{round(self.health / self.health_scale * 100)}%] ({round(self.attack_cooldown - (monotonic() - self.last_attacked), 1)})"
+        else:
+            return f"{self.name.upper()} [{round(self.health / self.health_scale * 100)}%]"
+
+    def ui_update(self, current_tick: int, last_tick: int) -> dict:
+        """
+        Docstring
+        """
+        return {"priority": 0}
 
 @dataclass
 class LivingLawnmoyer:
     lawnmoyer: Lawnmoyer
-    lane: "Lane"
+    lane: Lane
 
     def __post_init__(self):
         self.name = self.lawnmoyer.name
@@ -165,3 +195,15 @@ class LivingLawnmoyer:
         Méthode de ticking pour la classe LivingLawnmoyer.
         """
         pass
+
+    def sous_texte(self) -> str:
+        """
+        Docstring
+        """
+        return self.name.upper()
+
+    def ui_update(self, current_tick: int, last_tick: int) -> dict:
+        """
+        Docstring
+        """
+        return {"priority": 2}
