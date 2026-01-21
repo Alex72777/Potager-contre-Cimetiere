@@ -110,6 +110,12 @@ class Lane:
     plantes: list[LivingPlant] = field(default_factory= lambda: [])
     zombies: list[LivingZombie] = field(default_factory= lambda: [])
 
+    def release_lawnmoyer(self) -> None:
+        """
+        Docstring
+        """
+        pass
+
     def append_slot(self, slot: Slot) -> None:
         self.slots.append(slot)
 

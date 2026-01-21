@@ -139,6 +139,9 @@ class LivingZombie:
     def damage(self, damages: int):
         self.health = max(0, self.health - damages)
 
+    def kill(self) -> None:
+        self.health = 0
+
     def update(self, current_tick: int, last_tick: int) -> None:
         dt = current_tick - last_tick
         """
@@ -179,7 +182,7 @@ class LivingZombie:
         """
         Docstring
         """
-        return {"priority": 0}
+        return {"priority": 1}
 
 @dataclass
 class LivingLawnmoyer:
@@ -189,12 +192,22 @@ class LivingLawnmoyer:
     def __post_init__(self):
         self.name = self.lawnmoyer.name
         self.speed = self.lawnmoyer.speed
+        self.x = 0
 
-    def update(self) -> None:
+    def update(self, current_tick: int, last_tick: int) -> None:
         """
         Méthode de ticking pour la classe LivingLawnmoyer.
         """
-        pass
+        dt = current_tick - last_tick
+        self.x = min(self.lane.len_slots, self.x + self.speed * dt)
+
+        zombie = self.lane.get_zombie()
+        if zombie != None and zombie.x <= self.x:
+            zombie.kill()
+            print(f"{new_kill.name} tué.")
+
+        if self.x == self.lane.len_slots:
+            del self
 
     def sous_texte(self) -> str:
         """
@@ -206,4 +219,4 @@ class LivingLawnmoyer:
         """
         Docstring
         """
-        return {"priority": 2}
+        return {"priority": 3}

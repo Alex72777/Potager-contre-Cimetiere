@@ -115,37 +115,7 @@ class Game(Tk):
 
         # Living zombies ticking
 
-        slot_text = ""
-        for lane in self.board:
-            for zombie in lane.get_entities():
-                slot = zombie.lane.slots[floor(zombie.x)]
-                if not slot.taken_by:
-                    slot.configure(text='')
-
-                if isinstance(zombie, LivingZombie):
-                    next_plant = lane.next_plant_from(zombie)
-                    if next_plant and next_plant.x <= zombie.x < next_plant.x + zombie.attack_range and current_tick - zombie.last_attacked >= zombie.attack_cooldown: # Attack range
-                        next_plant.damage(zombie.attack_damage)
-                        zombie.last_attacked = current_tick
-                        print(zombie.health, next_plant.health)
-
-                    if next_plant:
-                        zombie.x = max(next_plant.x, zombie.x - zombie.speed * dt)
-                    else:
-                        zombie.x = max(0, zombie.x - zombie.speed * dt)
-
-                    if zombie.x == 0:
-                        # GAME OVER LOGIC or lawnmoyer
-                        pass
-
-                    if zombie:
-                        if floor(zombie.x) < self.board_width - 1:
-                            lane.slots[floor(zombie.x) + 1].configure(text='')
-                        if not current_tick - zombie.last_attacked >= zombie.attack_cooldown:
-                            slot_text += slot.cget('text') + f"{',' if slot.taken_by else ''}{zombie.name.upper()} [{round(zombie.health / zombie.health_scale * 100)}%] ({round(zombie.attack_cooldown - (monotonic() - zombie.last_attacked), 1)})"
-                        else:
-                            slot_text += slot.cget('text') + f"{',' if slot.taken_by else ''}{zombie.name.upper()} [{round(zombie.health / zombie.health_scale * 100)}%]"
-                slot.configure(text=slot.cget('text') + slot_text)
+        """Merged into living zombies"""
 
         self.after(1, lambda: self.tick(current_tick))
 
