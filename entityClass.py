@@ -57,7 +57,7 @@ class LivingSunflower(LivingPlant):
             raise TypeError("LivingSunflower requires a Sunflower class instance")
 
         super().__init__(plant=plant, slot=slot, master=master)
-        self.lastly_produced: float = 0 # Timestamp of last production
+        self.lastly_produced: float = monotonic() - self.plant.suns_cooldown + 5 # Timestamp of last production
         self.blinked_slot: float = 0 # used for the production notification (timestamp)
 
     def update(self, current_tick: int, last_tick: int) -> None:

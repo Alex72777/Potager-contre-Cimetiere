@@ -80,37 +80,23 @@ class Game(Tk):
         self.mainloop()
 
     def tick(self, last_tick: float):
-        current_tick = (monotonic())
-        dt = current_tick - last_tick
+        current_tick = monotonic()
         # Plant selectors ticking
         
-        """Merged into plant selector class"""
+        for plant_selector in self.plant_selectors:
+            plant_selector.update(current_tick, last_tick)
 
         # Player's passive suns income
 
-        """Merged into player class"""
+        self.player.update()
 
-        # Living plants ticking
+        # Living entities ticking
 
-        """Merged into living entities"""
-
-        # Living zombies ticking
-
-        """Merged into living zombies"""
+        for lane in self.board:
+            for living_plant in lane.plantes:
+                living_plant.update()
+            
+            for living_zombie in lane.zombies:
+                living_zombie.update()
 
         self.after(1, lambda: self.tick(current_tick))
-
-    # @property
-    # def living_plants(self) -> list[LivingPlant]:
-    #     plants = []
-    #     for lane in self.board:
-    #         for slot in lane.slots:
-    #             if slot.taken_by: plants.append(slot.taken_by)
-    #     return plants
-
-    # @property
-    # def living_zombies(self) -> list[LivingZombie]:
-    #     zombies = []
-    #     for lane in self.board:
-    #         zombies += lane.entities
-    #     return zombies
