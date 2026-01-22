@@ -83,31 +83,12 @@ class Game(Tk):
         current_tick = (monotonic())
         dt = current_tick - last_tick
         # Plant selectors ticking
-
-        for plant_selector in self.plant_selectors:
-            if monotonic() - plant_selector.last_used > plant_selector.plant.cooldown:
-                plant_selector.configure(
-                    text=f"{plant_selector.plant.name} [{plant_selector.plant.cost}]",
-                    bg=plant_selector.default_color if self.player.selected_plant != plant_selector else plant_selector.hovered_color
-                )
-            else:
-                plant_selector.configure(
-                    text=f"{plant_selector.plant.name} [{plant_selector.plant.cost}] {round(plant_selector.plant.cooldown - (current_tick - plant_selector.last_used), 1)}"
-                )
-
-            if plant_selector == self.player.selected_plant:
-                if self.player.suns.get() >= plant_selector.plant.cost:
-                    plant_selector.configure(bg=plant_selector.hovered_color)
-                else:
-                    plant_selector.configure(bg='red')
+        
+        """Merged into plant selector class"""
 
         # Player's passive suns income
 
-        if monotonic() - self.player.lastly_earned_suns >= self.player.SUNS_COOLDOWN:
-            self.player.add_suns(self.player.SUNS_EARN_RATE)
-            self.player.lastly_earned_suns = current_tick
-        else:
-            self.suns_earn_cooldown.set(round(self.player.SUNS_COOLDOWN - (current_tick - self.player.lastly_earned_suns), 1))
+        """Merged into player class"""
 
         # Living plants ticking
 
