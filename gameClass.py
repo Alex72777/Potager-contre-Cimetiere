@@ -1,8 +1,8 @@
 from tkinter import Tk, Frame, Label, DoubleVar
 from playerClass import Player, PlantSelector, Slot, Lane, HouseSlot
 from zombiesClass import Zombie, ZOMBIES
-from entityClass import LivingPlant, LivingZombie, LivingSunflower, LivingPeashooter, Lawnmoyer
-from plantsClass import Sunflower, Peashooter, Wallnut
+from entityClass import LivingPlant, LivingZombie, LivingSunflower, LivingPeashooter
+from plantsClass import Sunflower, Peashooter, Wallnut, Lawnmoyer
 from time import monotonic
 from typing import cast
 from math import floor
@@ -31,29 +31,24 @@ class Game(Tk):
             self.waves = {}
 
     def end_game(self) -> None:
-        pass
+        self.tick = None
 
     def draw(self) -> None:
         game_frame = Frame(self, bg='gray64', padx=10, pady=10)
 
-        house_frame = Frame(game_frame, bg='gray')
         board_frame = Frame(game_frame, bg='chartreuse4')
-
+        
         for i in range(self.board_height):
             board_frame.rowconfigure(i, pad=10)
-            house_frame.rowconfigure(i, pad=10)
 
         board: list[Lane] = []
         for y in range(self.board_height):
-            house_slot = HouseSlot(house_frame, Lawnmoyer())
-            house_slot.grid(row=y, column=0)
-            new_lane = Lane(house_slot, y)
-            new_lane.house_slot = house_slot
+            new_lane = Lane(y, game_frame)
             board.append(new_lane)
 
             for x in range(self.board_width):
                 slot = Slot(board_frame, x, new_lane)
-                slot.configure(command = lambda game = self, slot = slot: slot.place_plant(game))
+                slot.configure(command = lambda game = self, lane = new_lane: lane.place_plant(game))
                 slot.grid(column=x, row=y)
                 new_lane.append_slot(slot)
         self.board = board
@@ -68,13 +63,12 @@ class Game(Tk):
         suns_earn_cooldown_label.pack(fill='x', side='bottom')
 
         for plant in self.player.unlocked_plants:
-            btn = PlantSelector(deck_frame, plant)
+            btn = PlantSelector(deck_frame, plant, self.player)
             btn.configure(command= lambda btn = btn: self.player.select_plant(btn))
             btn.pack()
             self.plant_selectors.append(btn)
 
         deck_frame.pack(side='left', fill='y')
-        house_frame.pack(side='left')
         board_frame.pack(side='left')
 
         game_frame.pack(fill='both', expand=True)
@@ -91,7 +85,7 @@ class Game(Tk):
 
         # Player's passive suns income
 
-        self.player.update()
+        self.player.update(current_tick, last_tick)
 
         # Living entities ticking
 

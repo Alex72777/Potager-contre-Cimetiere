@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from plantsClass import Plant, PLANTS, Sunflower, Peashooter
-from entityClass import Lawnmoyer, LivingLawnmoyer, LivingPlant, LivingZombie, LivingSunflower, LivingPeashooter
+from plantsClass import Plant, PLANTS, Sunflower, Peashooter, Lawnmoyer
+from entityClass import LivingLawnmoyer, LivingPlant, LivingZombie, LivingSunflower, LivingPeashooter
 from tkinter import Button, Frame, IntVar, Tk
 from time import monotonic
 from math import floor
@@ -13,7 +13,7 @@ class PlantSelector(Button):
     def __init__(self,
                  master: Frame,
                  plant: Plant,
-                 player: Player):
+                 player: "Player"):
         super().__init__(master)
         self.player = player
         self.plant = plant
@@ -34,9 +34,9 @@ class PlantSelector(Button):
         Docstring
         """
         if monotonic() - self.last_used > self.plant.cooldown:
-            plant_selector.configure(
+            self.configure(
                 text=f"{self.plant.name} [{self.plant.cost}]",
-                bg=self.default_color (if self.player.selected_plant != plant_selector else plant_selector.hovered_color)
+                bg=(self.default_color if self.player.selected_plant != self else self.hovered_color)
             )
         else:
             self.configure(
@@ -103,42 +103,17 @@ class Slot(Button):
             if opt in valid_options:
                 self[opt] = val
 
-    def place_plant(self, game: "Game") -> None:
-        if not game.player.selected_plant:
-            return
-
-        if self.lane.len_plantes >= self.lane.len_slots:
-            return
-
-        if game.player.suns.get() < game.player.selected_plant.plant.cost:
-            return
-
-        plant: Plant = game.player.selected_plant.plant
-        new_living_plant = None
-        if isinstance(plant, Sunflower):
-            new_living_plant = LivingSunflower(plant, self, game)
-
-        if isinstance(plant, Peashooter):
-            new_living_plant = LivingPeashooter(plant, self, game)
-
-        print("Nouvelle plante:", new_living_plant) # debug
-        if new_living_plant == None:
-            return
-
-        game.player.add_suns(-(plant.cost))
-
-        game.player.selected_plant.last_used = monotonic()
-        game.player.selected_plant = None
-
 class HouseSlot(Button):
     def __init__(self,
                  master: Frame,
-                 lane: Lane,
-                 taken_by: Lawnmoyer | None,) -> None:
+                 lane: "Lane",
+                 taken_by: "Lawnmoyer | None",) -> None:
         super().__init__(master)
         self.taken_by = taken_by
         self.lane = lane
 
+        self.grid(row=lane.y, column=0)
+        self.pack(side='left')
         self.configure(bg='dimgray',
                        width=20,
                        height=8,
@@ -150,12 +125,18 @@ class Lane:
     """
     Classe contenant la pile des zombies et la pile des plantes.
     """
-    house_slot: HouseSlot
     y: int
+    game_frame: Frame
     slots: list[Slot] = field(default_factory= lambda: [])
     plantes: list[LivingPlant] = field(default_factory= lambda: [])
     zombies: list[LivingZombie] = field(default_factory= lambda: [])
-
+    
+    def __post_init__(self) -> None:
+        house_frame = Frame(self.game_frame, bg='gray')
+        house_frame.rowconfigure(self.y, pad=10)
+        
+        self.house_slot = HouseSlot(house_frame, self, taken_by=Lawnmoyer())
+    
     def release_lawnmoyer(self) -> None:
         """
         Docstring
@@ -213,6 +194,34 @@ class Lane:
 
         return self.plantes[-1]
     
+    def place_plant(self, game: "Game") -> None:
+        if not game.player.selected_plant:
+            return
+
+        if self.len_plantes >= self.len_slots:
+            return
+
+        if game.player.suns.get() < game.player.selected_plant.plant.cost:
+            return
+
+        plant: Plant = game.player.selected_plant.plant
+        new_living_plant = None
+        if isinstance(plant, Sunflower):
+            new_living_plant = LivingSunflower(plant, self, game)
+
+        if isinstance(plant, Peashooter):
+            new_living_plant = LivingPeashooter(plant, self, game)
+
+        print("Nouvelle plante:", new_living_plant) # debug
+        if new_living_plant == None:
+            return
+
+        game.player.add_suns(-(plant.cost))
+        self.empiler_plante(new_living_plant)
+
+        game.player.selected_plant.last_used = monotonic()
+        game.player.selected_plant = None
+    
     @property
     def len_zombie(self) -> int:
         return len(self.zombies)
@@ -248,7 +257,7 @@ class Player:
     """
 
     master: Tk
-    unlocked_plants = field(default_factory=lambda: list(PLANTS.values()))
+    unlocked_plants: list["Plant"] = field(default_factory=lambda: list(PLANTS.values()))
     selected_plant: PlantSelector | None = None
     SUNS_EARN_RATE = 25
     SUNS_COOLDOWN = 10 # seconds
@@ -276,5 +285,6 @@ class Player:
             self.add_suns(self.SUNS_EARN_RATE)
             self.lastly_earned_suns = current_tick
         else:
+            pass
             ### Fix suns earn cooldown label ###
-            self.suns_earn_cooldown.set(round(self.player.SUNS_COOLDOWN - (current_tick - self.player.lastly_earned_suns), 1))
+            #self.suns_earn_cooldown.set(round(self.player.SUNS_COOLDOWN - (current_tick - self.player.lastly_earned_suns), 1))

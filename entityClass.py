@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from plantsClass import PLANTS
+from plantsClass import PLANTS, Plant, Sunflower, Peashooter, Lawnmoyer
 from zombiesClass import Zombie
 from typing import TYPE_CHECKING
 from time import monotonic
@@ -7,13 +7,12 @@ from time import monotonic
 if TYPE_CHECKING:
     from gameClass import Slot, Game
     from playerClass import Lane
-    from plantsClass import Plant, Sunflower, Peashooter, Lawnmoyer
 
 @dataclass
 class LivingPlant:
-    master: Game
-    plant: Plant
-    slot: Slot
+    master: "Game"
+    plant: "Plant"
+    slot: "Slot"
 
     def __post_init__(self):
         self.name = self.plant.name
@@ -52,7 +51,7 @@ class LivingPlant:
         return {"priority": 0}
 
 class LivingSunflower(LivingPlant):
-    def __init__(self, plant: Sunflower, slot: "Slot", master: Game):
+    def __init__(self, plant: "Sunflower", slot: "Slot", master: "Game"):
         if not isinstance(plant, Sunflower):
             raise TypeError("LivingSunflower requires a Sunflower class instance")
 
@@ -87,7 +86,7 @@ class LivingPeashooter(LivingPlant):
     """
     La représentation vivante de l'entité.
     """
-    def __init__(self, plant: Peashooter, slot: "Slot", master: Game):
+    def __init__(self, plant: "Peashooter", slot: "Slot", master: "Game"):
         if not isinstance(plant, Peashooter):
             raise TypeError("LivingPeashooter requires a Peashooter class instance")
 
@@ -124,8 +123,8 @@ class LivingPeashooter(LivingPlant):
 class LivingZombie:
     zombie: Zombie
     x: float
-    lane: Lane
-    master: Game
+    lane: "Lane"
+    master: "Game"
 
     def __post_init__(self):
         self.name = self.zombie.name
@@ -192,8 +191,8 @@ class LivingZombie:
 
 @dataclass
 class LivingLawnmoyer:
-    lawnmoyer: Lawnmoyer
-    lane: Lane
+    lawnmoyer: "Lawnmoyer"
+    lane: "Lane"
 
     def __post_init__(self):
         self.name = self.lawnmoyer.name
