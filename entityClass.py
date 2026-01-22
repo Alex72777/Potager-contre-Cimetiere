@@ -63,14 +63,14 @@ class LivingSunflower(LivingPlant):
         """
         Méthode de ticking pour la classe LivingSunflower.
         """
-        sf_plant = PLANTS['sunflower']
+        sf_plant: Sunflower = self.plant
         if current_tick - self.lastly_produced >= sf_plant.suns_cooldown:
             self.master.player.add_suns(sf_plant.suns_income)
             self.lastly_produced = current_tick
             self.blinked_slot = current_tick
 
     def sous_texte(self, current_tick: float, last_tick: float) -> str:
-        sf_plant = PLANTS['sunflower']
+        sf_plant: Sunflower = self.plant
         return f"{self.name.upper()} ({round(sf_plant.suns_cooldown - (monotonic() - self.lastly_produced), 1)})"
 
     def ui_update(self, current_tick: float, last_tick: float) -> dict:
@@ -78,7 +78,7 @@ class LivingSunflower(LivingPlant):
         Pour changer la couleur ici
         """
         if current_tick - self.blinked_slot >= 1:
-            return {"bg": self.slot.default_color} # ???? Nécessaire?
+            return {"bg": self.slot.default_color, "priority": 1} # ???? Nécessaire?
         else:
             return {"bg": "yellow", "priority": 1}
 
@@ -104,7 +104,7 @@ class LivingPeashooter(LivingPlant):
         """
         Méthode de ticking pour la classe LivingPeashooter.
         """
-        ps_plant = PLANTS['peashooter']
+        ps_plant: Peashooter = self.plant
         if current_tick - self.lastly_shot >= ps_plant.pea_launch_cooldown:
             for shot in range(ps_plant.amount_of_peas):
                 zombie = self.lane.get_zombie()
@@ -113,7 +113,7 @@ class LivingPeashooter(LivingPlant):
             self.lastly_shot = current_tick
 
     def sous_texte(self, current_tick: float, last_tick: float) -> str:
-        ps_plant = PLANTS['peashooter']
+        ps_plant: Peashooter = self.plant
 
         if self.lane.get_zombie() != None:
             return f"{ps_plant.name.upper()} ({round(ps_plant.pea_launch_cooldown - (monotonic() - self.lastly_shot), 1)})"
@@ -165,13 +165,13 @@ class LivingZombie:
 
         if self.x == 0:
             # lawnmoyers be cooking (if any)
-            if self.lane.house_slot.taken_by:
+            if self.lane.house_slot.taken_by != None:
                 self.lane.release_lawnmoyer()
             else:
                 self.master.end_game()
 
         if self.health == 0:
-            self.lane.depiler_zombie()
+            self.lane.defiler_zombie()
             print(f"{self.name} tué.")
             del self
 

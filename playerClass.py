@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from plantsClass import Plant, PLANTS, Sunflower, Peashooter, Lawnmoyer
 from entityClass import LivingLawnmoyer, LivingPlant, LivingZombie, LivingSunflower, LivingPeashooter
-from tkinter import Button, Frame, IntVar, Tk
+from tkinter import Button, Frame, IntVar, Tk, DoubleVar
 from time import monotonic
 from math import floor
 from typing import TYPE_CHECKING
@@ -28,8 +28,8 @@ class PlantSelector(Button):
             borderwidth=1,
             text=self.plant.name,
         )
-    
-    def update(self, current_tick: int, last_tick: int) -> None:
+
+    def update(self, current_tick: float, last_tick: float) -> None:
         """
         Docstring
         """
@@ -40,7 +40,8 @@ class PlantSelector(Button):
             )
         else:
             self.configure(
-                text=f"{self.plant.name} [{self.plant.cost}] {round(self.plant.cooldown - (current_tick - self.last_used), 1)}"
+                text=f"{self.plant.name} [{self.plant.cost}] {round(self.plant.cooldown - (current_tick - self.last_used), 1)}",
+                bg='gray'
             )
 
         if self == self.player.selected_plant:
@@ -66,40 +67,40 @@ class Slot(Button):
                        height=8,
                        borderwidth=0)
 
-    def update_text(self) -> None:
+    def update_text(self, current_tick: float, last_tick: float) -> None:
         """Updates button text accordingly to plant and/or zombies on it."""
         slot_text = ""
-        
-        ui_conf = {}
+
+        ui_conf: dict[str, object] = {}
         if hasattr(self.taken_by, 'ui_update'):
-            ui_conf = self.taken_by.ui_update()
-        
+            ui_conf = self.taken_by.ui_update(current_tick, last_tick)
+
         if self.taken_by != None:
-            slot_text += self.taken_by.sous_texte()
-        
+            slot_text += self.taken_by.sous_texte(current_tick, last_tick)
+
         if not "priority" in ui_conf.keys():
             ui_conf["priority"] = 0
-        
+
         for zombie in self.lane.zombies:
             if self.x < zombie.x <= self.x + 1:
-                slot_text += ", {}".format(zombie.sous_texte())
-                
+                slot_text += ", {}".format(zombie.sous_texte(current_tick, last_tick))
+
                 zombie_ui_conf = {}
                 if hasattr(zombie, 'ui_update'):
-                    zombie_ui_conf = zombie.ui_update()
-                
+                    zombie_ui_conf = zombie.ui_update(current_tick, last_tick)
+
                 if not "priority" in zombie_ui_conf.keys():
                     zombie_ui_conf["priority"] = 0
-                
+
                 if zombie_ui_conf["priority"] > ui_conf["priority"]:
                     ui_conf = zombie_ui_conf
-        
+
         self["text"] = slot_text
-        self._update_ui(ui_conf)
-        
-    def _update_ui(self, options: dict) -> None:
+        self._ui_update(ui_conf)
+
+    def _ui_update(self, options: dict) -> None:
         valid_options = ["bg", "fg"]
-        for opt, val in options:
+        for opt, val in options.items():
             if opt in valid_options:
                 self[opt] = val
 
@@ -112,8 +113,8 @@ class HouseSlot(Button):
         self.taken_by = taken_by
         self.lane = lane
 
-        self.grid(row=lane.y, column=0)
-        self.pack(side='left')
+        # self.grid(row=lane.y, column=0)
+        # self.pack(side='left')
         self.configure(bg='dimgray',
                        width=20,
                        height=8,
@@ -126,22 +127,23 @@ class Lane:
     Classe contenant la pile des zombies et la pile des plantes.
     """
     y: int
-    game_frame: Frame
+    house_frame: Frame
     slots: list[Slot] = field(default_factory= lambda: [])
     plantes: list[LivingPlant] = field(default_factory= lambda: [])
     zombies: list[LivingZombie] = field(default_factory= lambda: [])
-    
+    lawnmoyers: list[LivingLawnmoyer] = field(default_factory= lambda: [])
+
     def __post_init__(self) -> None:
-        house_frame = Frame(self.game_frame, bg='gray')
-        house_frame.rowconfigure(self.y, pad=10)
-        
-        self.house_slot = HouseSlot(house_frame, self, taken_by=Lawnmoyer())
-    
+
+        self.house_slot = HouseSlot(self.house_frame, self, taken_by=Lawnmoyer())
+        self.house_slot.grid(row=self.y, column=0)
+
     def release_lawnmoyer(self) -> None:
         """
         Docstring
         """
-        
+        lawnmoyer = LivingLawnmoyer(self.house_slot.taken_by, self)
+
 
     def append_slot(self, slot: Slot) -> None:
         self.slots.append(slot)
@@ -165,7 +167,7 @@ class Lane:
         """
         if self.len_zombie == 0:
             return None
-        
+
         val: LivingZombie = self.zombies.pop(0)
         return val
 
@@ -175,11 +177,11 @@ class Lane:
         """
         if self.len_plantes == 0:
             return None
-        
+
         val: LivingLawnmoyer | LivingPlant = self.plantes.pop()
         if isinstance(val, LivingLawnmoyer):
             return None
-        
+
         return val
 
     def get_zombie(self) -> LivingZombie | None:
@@ -193,35 +195,37 @@ class Lane:
             return None
 
         return self.plantes[-1]
-    
+
     def place_plant(self, game: "Game") -> None:
         if not game.player.selected_plant:
             return
 
         if self.len_plantes >= self.len_slots:
             return
+        slot = self.slots[self.len_plantes]
 
         if game.player.suns.get() < game.player.selected_plant.plant.cost:
             return
 
         plant: Plant = game.player.selected_plant.plant
-        new_living_plant = None
+        new_living_plant: LivingPlant | None = None
         if isinstance(plant, Sunflower):
-            new_living_plant = LivingSunflower(plant, self, game)
+            new_living_plant = LivingSunflower(plant, slot, game)
 
         if isinstance(plant, Peashooter):
-            new_living_plant = LivingPeashooter(plant, self, game)
+            print(plant.name)
+            new_living_plant = LivingPeashooter(plant, slot, game)
 
-        print("Nouvelle plante:", new_living_plant) # debug
         if new_living_plant == None:
             return
+        print("Nouvelle plante:", new_living_plant.name) # debug
 
         game.player.add_suns(-(plant.cost))
         self.empiler_plante(new_living_plant)
 
         game.player.selected_plant.last_used = monotonic()
         game.player.selected_plant = None
-    
+
     @property
     def len_zombie(self) -> int:
         return len(self.zombies)
@@ -261,10 +265,11 @@ class Player:
     selected_plant: PlantSelector | None = None
     SUNS_EARN_RATE = 25
     SUNS_COOLDOWN = 10 # seconds
-    DEFAULT_SUNS = 100
+    DEFAULT_SUNS = 1000
 
     def __post_init__(self):
         self.suns = IntVar(self.master, self.DEFAULT_SUNS)
+        self.suns_earn_cooldown = DoubleVar(self.master, self.SUNS_COOLDOWN)
         self.lastly_earned_suns = monotonic()
 
     def select_plant(self, selectable_plant: PlantSelector) -> None:
@@ -279,12 +284,10 @@ class Player:
 
     def add_suns(self, suns: int) -> None:
         self.suns.set(max(0, self.suns.get() + suns))
-    
-    def update(self, current_tick: int, last_tick: int) -> None:
+
+    def update(self, current_tick: float, last_tick: float) -> None:
         if monotonic() - self.lastly_earned_suns >= self.SUNS_COOLDOWN:
             self.add_suns(self.SUNS_EARN_RATE)
             self.lastly_earned_suns = current_tick
         else:
-            pass
-            ### Fix suns earn cooldown label ###
-            #self.suns_earn_cooldown.set(round(self.player.SUNS_COOLDOWN - (current_tick - self.player.lastly_earned_suns), 1))
+            self.suns_earn_cooldown.set(round(self.SUNS_COOLDOWN - (current_tick - self.lastly_earned_suns), 1))

@@ -37,13 +37,15 @@ class Game(Tk):
         game_frame = Frame(self, bg='gray64', padx=10, pady=10)
 
         board_frame = Frame(game_frame, bg='chartreuse4')
-        
+        house_frame = Frame(game_frame, bg='gray')
+
         for i in range(self.board_height):
             board_frame.rowconfigure(i, pad=10)
+            house_frame.rowconfigure(i, pad=10)
 
         board: list[Lane] = []
         for y in range(self.board_height):
-            new_lane = Lane(y, game_frame)
+            new_lane = Lane(y, house_frame)
             board.append(new_lane)
 
             for x in range(self.board_width):
@@ -59,7 +61,7 @@ class Game(Tk):
         suns_label = Label(deck_frame, textvariable=self.player.suns)
         suns_label.pack(fill='x', side='bottom')
 
-        suns_earn_cooldown_label = Label(deck_frame, textvariable=self.suns_earn_cooldown, bg='grey')
+        suns_earn_cooldown_label = Label(deck_frame, textvariable=self.player.suns_earn_cooldown, bg='grey')
         suns_earn_cooldown_label.pack(fill='x', side='bottom')
 
         for plant in self.player.unlocked_plants:
@@ -69,6 +71,7 @@ class Game(Tk):
             self.plant_selectors.append(btn)
 
         deck_frame.pack(side='left', fill='y')
+        house_frame.pack(side='left')
         board_frame.pack(side='left')
 
         game_frame.pack(fill='both', expand=True)
@@ -79,7 +82,7 @@ class Game(Tk):
     def tick(self, last_tick: float):
         current_tick = monotonic()
         # Plant selectors ticking
-        
+
         for plant_selector in self.plant_selectors:
             plant_selector.update(current_tick, last_tick)
 
@@ -91,9 +94,15 @@ class Game(Tk):
 
         for lane in self.board:
             for living_plant in lane.plantes:
-                living_plant.update()
-            
+                living_plant.update(current_tick, last_tick)
+
             for living_zombie in lane.zombies:
-                living_zombie.update()
+                living_zombie.update(current_tick, last_tick)
+
+        # Slot update
+
+        for lane in self.board:
+            for slot in lane.slots:
+                slot.update_text(current_tick, last_tick)
 
         self.after(1, lambda: self.tick(current_tick))
