@@ -4,7 +4,7 @@ from entityClass import Lawnmoyer, LivingLawnmoyer, LivingPlant, LivingZombie, L
 from tkinter import Button, Frame, IntVar, Tk
 from time import monotonic
 from math import floor
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from gameClass import Game
@@ -12,8 +12,10 @@ if TYPE_CHECKING:
 class PlantSelector(Button):
     def __init__(self,
                  master: Frame,
-                 plant: Plant):
+                 plant: Plant,
+                 player: Player):
         super().__init__(master)
+        self.player = player
         self.plant = plant
         self.default_color = 'green'
         self.hovered_color = 'yellow'
@@ -26,6 +28,26 @@ class PlantSelector(Button):
             borderwidth=1,
             text=self.plant.name,
         )
+    
+    def update(self, current_tick: int, last_tick: int) -> None:
+        """
+        Docstring
+        """
+        if monotonic() - self.last_used > self.plant.cooldown:
+            plant_selector.configure(
+                text=f"{self.plant.name} [{self.plant.cost}]",
+                bg=self.default_color if self.player.selected_plant != plant_selector else plant_selector.hovered_color
+            )
+        else:
+            self.configure(
+                text=f"{self.plant.name} [{self.plant.cost}] {round(self.plant.cooldown - (current_tick - self.last_used), 1)}"
+            )
+
+        if self == self.player.selected_plant:
+            if self.player.suns.get() >= self.plant.cost:
+                self.configure(bg=self.hovered_color)
+            else:
+                self.configure(bg='red')
 
 class Slot(Button):
     def __init__(self,
@@ -61,23 +83,16 @@ class Slot(Button):
         plant: Plant = game.player.selected_plant.plant
         new_living_plant = None
         if isinstance(plant, Sunflower):
-            # sf_plant = cast(Sunflower, plant)
             new_living_plant = LivingSunflower(plant, self, game)
-            new_living_plant.lastly_produced = monotonic() - plant.suns_cooldown + 5
 
         if isinstance(plant, Peashooter):
-            # ps_plant = cast(Peashooter, plant)
             new_living_plant = LivingPeashooter(plant, self, game)
 
-        print(new_living_plant) # debug
-        if not new_living_plant:
+        print("Nouvelle plante:", new_living_plant) # debug
+        if new_living_plant == None:
             return
 
         game.player.add_suns(-(plant.cost))
-
-        game.player.selected_plant.configure(
-                bg='grey'
-            )
 
         game.player.selected_plant.last_used = monotonic()
         game.player.selected_plant = None
@@ -129,26 +144,31 @@ class Lane:
         """
         Docstring
         """
-        plante.slot.taken_by
+        plante.slot.taken_by = plante
         self.plantes.append(plante)
 
     def depiler_zombie(self) -> LivingZombie | None:
         """
         Docstring
         """
+        if self.len_zombie == 0:
+            return None
+        
         val: LivingZombie = self.zombies.pop()
-        if not isinstance(val, LivingZombie):
-            return val
-        return None
+        return val
 
     def depiler_plante(self) -> LivingPlant | None:
         """
         Docstring
         """
+        if self.len_plantes == 0:
+            return None
+        
         val: LivingLawnmoyer | LivingPlant = self.plantes.pop()
-        if not isinstance(val, LivingLawnmoyer):
-            return val
-        return None
+        if isinstance(val, LivingLawnmoyer):
+            return None
+        
+        return val
 
     def get_zombie(self) -> LivingZombie | None:
         if len(self.zombies) == 0:
@@ -161,7 +181,7 @@ class Lane:
             return None
 
         return self.plantes[-1]
-
+    
     @property
     def len_zombie(self) -> int:
         return len(self.zombies)
@@ -174,26 +194,12 @@ class Lane:
     def len_slots(self) -> int:
         return len(self.slots)
 
-    # def _distance_key(self, entity: LivingZombie) -> float:
-    #     return entity.x
-
-    # def get_entities(self) -> list[LivingZombie]:
-    #     """Returns a list of living zombies sorted by their closeness to the house"""
-    #     return sorted(self.entities, key=self._distance_key)
-
     # def next_plant_from(self, zombie: LivingZombie) -> LivingPlant | None: # Nul! faire pile pour les plantes
     #     for i in range(floor(zombie.x), 0, -1):
     #         if self.slots[i].taken_by:
     #             living_plant = cast(LivingPlant, self.slots[i].taken_by)
     #             return living_plant
 
-
-    # @property
-    # def furthest_plant(self) -> LivingPlant | None: # idem, faire pile
-    #     for i in range(len(self.slots) - 1, 0, -1):
-    #         if self.slots[i].taken_by:
-    #             living_plant = cast(LivingPlant, self.slots[i].taken_by)
-    #             return living_plant
 
 @dataclass
 class Player:
@@ -233,3 +239,11 @@ class Player:
 
     def add_suns(self, suns: int) -> None:
         self.suns.set(max(0, self.suns.get() + suns))
+    
+    def update(self, current_tick: int, last_tick: int) -> None:
+        if monotonic() - self.lastly_earned_suns >= self.SUNS_COOLDOWN:
+            self.add_suns(self.SUNS_EARN_RATE)
+            self.lastly_earned_suns = current_tick
+        else:
+            ### Fix suns earn cooldown label ###
+            self.suns_earn_cooldown.set(round(self.player.SUNS_COOLDOWN - (current_tick - self.player.lastly_earned_suns), 1))
