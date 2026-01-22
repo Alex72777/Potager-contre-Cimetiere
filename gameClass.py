@@ -30,6 +30,9 @@ class Game(Tk):
         else:
             self.waves = {}
 
+    def end_game(self) -> None:
+        pass
+
     def draw(self) -> None:
         game_frame = Frame(self, bg='gray64', padx=10, pady=10)
 

@@ -69,7 +69,11 @@ class Slot(Button):
     def update_text(self) -> None:
         """Updates button text accordingly to plant and/or zombies on it."""
         slot_text = ""
-        ui_conf = self.taken_by.ui_update()
+        
+        ui_conf = {}
+        if hasattr(self.taken_by, 'ui_update'):
+            ui_conf = self.taken_by.ui_update()
+        
         if self.taken_by != None:
             slot_text += self.taken_by.sous_texte()
         
@@ -79,7 +83,10 @@ class Slot(Button):
         for zombie in self.lane.zombies:
             if self.x < zombie.x <= self.x + 1:
                 slot_text += ", {}".format(zombie.sous_texte())
-                zombie_ui_conf = zombie.ui_update()
+                
+                zombie_ui_conf = {}
+                if hasattr(zombie, 'ui_update'):
+                    zombie_ui_conf = zombie.ui_update()
                 
                 if not "priority" in zombie_ui_conf.keys():
                     zombie_ui_conf["priority"] = 0
@@ -127,11 +134,9 @@ class HouseSlot(Button):
     def __init__(self,
                  master: Frame,
                  lane: Lane,
-                 taken_by: Lawnmoyer | None,
-                 entities: list[LivingZombie] = []) -> None:
+                 taken_by: Lawnmoyer | None,) -> None:
         super().__init__(master)
         self.taken_by = taken_by
-        self.entities = entities
         self.lane = lane
 
         self.configure(bg='dimgray',
@@ -155,12 +160,12 @@ class Lane:
         """
         Docstring
         """
-        pass
+        
 
     def append_slot(self, slot: Slot) -> None:
         self.slots.append(slot)
 
-    def empiler_zombie(self, zombie: LivingZombie) -> None:
+    def emfiler_zombie(self, zombie: LivingZombie) -> None:
         """
         Docstring
         """
@@ -173,14 +178,14 @@ class Lane:
         plante.slot.taken_by = plante
         self.plantes.append(plante)
 
-    def depiler_zombie(self) -> LivingZombie | None:
+    def defiler_zombie(self) -> LivingZombie | None:
         """
         Docstring
         """
         if self.len_zombie == 0:
             return None
         
-        val: LivingZombie = self.zombies.pop()
+        val: LivingZombie = self.zombies.pop(0)
         return val
 
     def depiler_plante(self) -> LivingPlant | None:
