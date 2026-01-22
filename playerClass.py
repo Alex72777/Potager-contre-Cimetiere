@@ -68,7 +68,13 @@ class Slot(Button):
 
     def update_text(self) -> None:
         """Updates button text accordingly to plant and/or zombies on it."""
-        pass
+        slot_text = ""
+        if self.taken_by != None:
+            slot_text += self.taken_by.sous_texte()
+        
+        for zombie in self.lane.zombies:
+            if self.x < zombie.x <= self.x + 1:
+                slot_text += ", {}".format(zombie.sous_texte())
 
     def place_plant(self, game: "Game") -> None:
         if not game.player.selected_plant:
