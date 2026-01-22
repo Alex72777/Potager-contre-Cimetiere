@@ -3,6 +3,7 @@ from plantsClass import PLANTS, Plant, Sunflower, Peashooter, Lawnmoyer
 from zombiesClass import Zombie
 from typing import TYPE_CHECKING
 from time import monotonic
+from random import choice
 
 if TYPE_CHECKING:
     from gameClass import Slot, Game
@@ -225,4 +226,5 @@ class LivingLawnmoyer:
         """
         Docstring
         """
-        return {"priority": 3}
+        colors = ['blue', 'red', 'pink', 'yellow', 'green', 'purple']
+        return {"bg": choice(colors), "priority": 3}
