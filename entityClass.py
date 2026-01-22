@@ -28,8 +28,9 @@ class LivingPlant:
         """
         self.health = max(0, self.health - damages)
         if self.health == 0:
-            self.slot.configure(bg=self.slot.default_color)
+            print(self.name, "tué.")
             self.slot.taken_by = None
+            self.lane.depiler_plante()
             del self
 
     def update(self, current_tick: float, last_tick: float) -> None:

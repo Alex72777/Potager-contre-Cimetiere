@@ -54,8 +54,8 @@ class Game(Tk):
                 slot.grid(column=x, row=y)
                 new_lane.append_slot(slot)
         self.board = board
-        # self.board[2].entities.append(LivingZombie(ZOMBIES['classic_zombie'], 7.5, board[2]))
-        # self.board[2].entities.append(LivingZombie(ZOMBIES['classic_zombie'], 8, board[2]))
+        self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 7.5, board[2], self))
+        self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 8, board[2], self))
         deck_frame = Frame(game_frame, bg='grey', padx=5, pady=5)
 
         suns_label = Label(deck_frame, textvariable=self.player.suns)
@@ -98,6 +98,9 @@ class Game(Tk):
 
             for living_zombie in lane.zombies:
                 living_zombie.update(current_tick, last_tick)
+
+            for lawnmoyer in lane.lawnmoyers:
+                lawnmoyer.update(current_tick, last_tick)
 
         # Slot update
 

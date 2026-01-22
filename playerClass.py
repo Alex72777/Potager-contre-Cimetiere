@@ -71,11 +71,10 @@ class Slot(Button):
         """Updates button text accordingly to plant and/or zombies on it."""
         slot_text = ""
 
-        ui_conf: dict[str, object] = {}
-        if hasattr(self.taken_by, 'ui_update'):
-            ui_conf = self.taken_by.ui_update(current_tick, last_tick)
+        ui_conf = {}
 
         if self.taken_by != None:
+            ui_conf = self.taken_by.ui_update(current_tick, last_tick)
             slot_text += self.taken_by.sous_texte(current_tick, last_tick)
 
         if not "priority" in ui_conf.keys():
@@ -83,11 +82,9 @@ class Slot(Button):
 
         for zombie in self.lane.zombies:
             if self.x < zombie.x <= self.x + 1:
-                slot_text += ", {}".format(zombie.sous_texte(current_tick, last_tick))
+                slot_text += " {} ".format(zombie.sous_texte(current_tick, last_tick))
 
-                zombie_ui_conf = {}
-                if hasattr(zombie, 'ui_update'):
-                    zombie_ui_conf = zombie.ui_update(current_tick, last_tick)
+                zombie_ui_conf = zombie.ui_update(current_tick, last_tick)
 
                 if not "priority" in zombie_ui_conf.keys():
                     zombie_ui_conf["priority"] = 0
@@ -148,7 +145,7 @@ class Lane:
     def append_slot(self, slot: Slot) -> None:
         self.slots.append(slot)
 
-    def emfiler_zombie(self, zombie: LivingZombie) -> None:
+    def enfiler_zombie(self, zombie: LivingZombie) -> None:
         """
         Docstring
         """
@@ -213,7 +210,6 @@ class Lane:
             new_living_plant = LivingSunflower(plant, slot, game)
 
         if isinstance(plant, Peashooter):
-            print(plant.name)
             new_living_plant = LivingPeashooter(plant, slot, game)
 
         if new_living_plant == None:
@@ -237,12 +233,6 @@ class Lane:
     @property
     def len_slots(self) -> int:
         return len(self.slots)
-
-    # def next_plant_from(self, zombie: LivingZombie) -> LivingPlant | None: # Nul! faire pile pour les plantes
-    #     for i in range(floor(zombie.x), 0, -1):
-    #         if self.slots[i].taken_by:
-    #             living_plant = cast(LivingPlant, self.slots[i].taken_by)
-    #             return living_plant
 
 
 @dataclass
