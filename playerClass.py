@@ -36,7 +36,7 @@ class PlantSelector(Button):
         if monotonic() - self.last_used > self.plant.cooldown:
             plant_selector.configure(
                 text=f"{self.plant.name} [{self.plant.cost}]",
-                bg=self.default_color if self.player.selected_plant != plant_selector else plant_selector.hovered_color
+                bg=self.default_color (if self.player.selected_plant != plant_selector else plant_selector.hovered_color)
             )
         else:
             self.configure(
@@ -69,12 +69,32 @@ class Slot(Button):
     def update_text(self) -> None:
         """Updates button text accordingly to plant and/or zombies on it."""
         slot_text = ""
+        ui_conf = self.taken_by.ui_update()
         if self.taken_by != None:
             slot_text += self.taken_by.sous_texte()
+        
+        if not "priority" in ui_conf.keys():
+            ui_conf["priority"] = 0
         
         for zombie in self.lane.zombies:
             if self.x < zombie.x <= self.x + 1:
                 slot_text += ", {}".format(zombie.sous_texte())
+                zombie_ui_conf = zombie.ui_update()
+                
+                if not "priority" in zombie_ui_conf.keys():
+                    zombie_ui_conf["priority"] = 0
+                
+                if zombie_ui_conf["priority"] > ui_conf["priority"]:
+                    ui_conf = zombie_ui_conf
+        
+        self["text"] = slot_text
+        self._update_ui(ui_conf)
+        
+    def _update_ui(self, options: dict) -> None:
+        valid_options = ["bg", "fg"]
+        for opt, val in options:
+            if opt in valid_options:
+                self[opt] = val
 
     def place_plant(self, game: "Game") -> None:
         if not game.player.selected_plant:
