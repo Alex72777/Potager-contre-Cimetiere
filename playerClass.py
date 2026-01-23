@@ -70,12 +70,25 @@ class Slot(Button):
     def update_text(self, current_tick: float, last_tick: float) -> None:
         """Updates button text accordingly to plant and/or zombies on it."""
         slot_text = ""
-
         ui_conf = {}
 
+        lawnmoyer = self.lane.lawnmoyer
+        #lawn_ui_conf = lawn_ui_conf.ui_update(current_tick, last_tick)
+        if lawnmoyer != None and self.x <= lawnmoyer.x < self.x + 1:
+            ui_conf = lawnmoyer.ui_update(current_tick, last_tick)
+            slot_text += lawnmoyer.sous_texte()
+
+        if not "priority" in ui_conf.keys():
+            ui_conf["priority"] = 3
+
         if self.taken_by != None:
-            ui_conf = self.taken_by.ui_update(current_tick, last_tick)
+            plant_ui_conf = self.taken_by.ui_update(current_tick, last_tick)
+            if plant_ui_conf["priority"] > ui_conf["priority"]:
+                ui_conf = plant_ui_conf
+
             slot_text += self.taken_by.sous_texte(current_tick, last_tick)
+        else:
+            self.configure(bg=self.default_color)
 
         if not "priority" in ui_conf.keys():
             ui_conf["priority"] = 0
@@ -110,13 +123,17 @@ class HouseSlot(Button):
         self.taken_by = taken_by
         self.lane = lane
 
-        # self.grid(row=lane.y, column=0)
-        # self.pack(side='left')
         self.configure(bg='dimgray',
                        width=20,
                        height=8,
                        borderwidth=0,
                        text=(self.taken_by.name.upper() if self.taken_by else ""))
+
+    def update(self, current_tick: float, last_tick: float) -> None:
+        if self.taken_by != None:
+            self.configure(text=self.taken_by.name.upper())
+        else:
+            self.configure(text='')
 
 @dataclass
 class Lane:
@@ -128,7 +145,7 @@ class Lane:
     slots: list[Slot] = field(default_factory= lambda: [])
     plantes: list[LivingPlant] = field(default_factory= lambda: [])
     zombies: list[LivingZombie] = field(default_factory= lambda: [])
-    lawnmoyers: list[LivingLawnmoyer] = field(default_factory= lambda: [])
+    lawnmoyer: LivingLawnmoyer | None = None
 
     def __post_init__(self) -> None:
 
@@ -140,6 +157,8 @@ class Lane:
         Docstring
         """
         lawnmoyer = LivingLawnmoyer(self.house_slot.taken_by, self)
+        self.house_slot.taken_by = None
+        self.lawnmoyer = lawnmoyer
 
 
     def append_slot(self, slot: Slot) -> None:
@@ -166,6 +185,7 @@ class Lane:
             return None
 
         val: LivingZombie = self.zombies.pop(0)
+        print(val.name, "tué.")
         return val
 
     def depiler_plante(self) -> LivingPlant | None:
@@ -176,6 +196,7 @@ class Lane:
             return None
 
         val: LivingLawnmoyer | LivingPlant = self.plantes.pop()
+        print(val.name, "tuée.")
         if isinstance(val, LivingLawnmoyer):
             return None
 
@@ -185,7 +206,7 @@ class Lane:
         if len(self.zombies) == 0:
             return None
 
-        return self.zombies[-1]
+        return self.zombies[0]
 
     def get_plante(self) -> LivingPlant | None:
         if len(self.plantes) == 0:

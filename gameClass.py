@@ -31,7 +31,8 @@ class Game(Tk):
             self.waves = {}
 
     def end_game(self) -> None:
-        self.tick = None
+        #self.tick = None
+        pass
 
     def draw(self) -> None:
         game_frame = Frame(self, bg='gray64', padx=10, pady=10)
@@ -55,7 +56,7 @@ class Game(Tk):
                 new_lane.append_slot(slot)
         self.board = board
         self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 7.5, board[2], self))
-        self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 8, board[2], self))
+        self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 1, board[2], self))
         deck_frame = Frame(game_frame, bg='grey', padx=5, pady=5)
 
         suns_label = Label(deck_frame, textvariable=self.player.suns)
@@ -93,18 +94,20 @@ class Game(Tk):
         # Living entities ticking
 
         for lane in self.board:
+            if lane.lawnmoyer != None:
+                lane.lawnmoyer.update(current_tick, last_tick)
+
             for living_plant in lane.plantes:
                 living_plant.update(current_tick, last_tick)
 
             for living_zombie in lane.zombies:
                 living_zombie.update(current_tick, last_tick)
 
-            for lawnmoyer in lane.lawnmoyers:
-                lawnmoyer.update(current_tick, last_tick)
 
         # Slot update
 
         for lane in self.board:
+            lane.house_slot.update(current_tick, last_tick)
             for slot in lane.slots:
                 slot.update_text(current_tick, last_tick)
 

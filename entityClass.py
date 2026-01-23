@@ -29,7 +29,6 @@ class LivingPlant:
         """
         self.health = max(0, self.health - damages)
         if self.health == 0:
-            print(self.name, "tué.")
             self.slot.taken_by = None
             self.lane.depiler_plante()
             del self
@@ -73,7 +72,12 @@ class LivingSunflower(LivingPlant):
 
     def sous_texte(self, current_tick: float, last_tick: float) -> str:
         sf_plant: Sunflower = self.plant
-        return f"{self.name.upper()} ({round(sf_plant.suns_cooldown - (monotonic() - self.lastly_produced), 1)})"
+        text = f"{self.name.upper()} ({round(sf_plant.suns_cooldown - (monotonic() - self.lastly_produced), 1)})"
+
+        if self.health < self.health_scale:
+            text += f" [{round(self.health / self.health_scale * 100)}%]"
+
+        return text
 
     def ui_update(self, current_tick: float, last_tick: float) -> dict:
         """
@@ -117,10 +121,17 @@ class LivingPeashooter(LivingPlant):
     def sous_texte(self, current_tick: float, last_tick: float) -> str:
         ps_plant: Peashooter = self.plant
 
+        text = ""
         if self.lane.get_zombie() != None:
-            return f"{ps_plant.name.upper()} ({round(ps_plant.pea_launch_cooldown - (monotonic() - self.lastly_shot), 1)})"
+            text = f"{ps_plant.name.upper()} ({round(ps_plant.pea_launch_cooldown - (monotonic() - self.lastly_shot), 1)})"
         else:
-            return f"{ps_plant.name.upper()}"
+            text = f"{ps_plant.name.upper()}"
+
+        if self.health < self.health_scale:
+            text += f" [{round(self.health / self.health_scale * 100)}%]"
+
+        return text
+
 @dataclass
 class LivingZombie:
     zombie: Zombie
@@ -150,6 +161,11 @@ class LivingZombie:
         Méthode de ticking pour la classe LivingZombie.
         """
 
+        if self.health == 0:
+            self.lane.defiler_zombie()
+            del self
+            return
+
         next_plant = self.lane.get_plante()
         if (next_plant
             and next_plant.x <= self.x < next_plant.x + self.attack_range
@@ -171,11 +187,6 @@ class LivingZombie:
                 self.lane.release_lawnmoyer()
             else:
                 self.master.end_game()
-
-        if self.health == 0:
-            self.lane.defiler_zombie()
-            print(f"{self.name} tué.")
-            del self
 
     def sous_texte(self, current_tick: float, last_tick: float) -> str:
         if not (current_tick - self.last_attacked >= self.attack_cooldown):
@@ -200,6 +211,8 @@ class LivingLawnmoyer:
         self.name = self.lawnmoyer.name
         self.speed = self.lawnmoyer.speed
         self.x = 0
+        self.key_time = 0
+        self.bg = ""
 
     def update(self, current_tick: float, last_tick: float) -> None:
         """
@@ -211,9 +224,9 @@ class LivingLawnmoyer:
         zombie = self.lane.get_zombie()
         if zombie != None and zombie.x <= self.x:
             zombie.kill()
-            print(f"{new_kill.name} tué.")
 
         if self.x == self.lane.len_slots:
+            self.lane.lawnmoyer = None
             del self
 
     def sous_texte(self) -> str:
@@ -226,5 +239,7 @@ class LivingLawnmoyer:
         """
         Docstring
         """
-        colors = ['blue', 'red', 'pink', 'yellow', 'green', 'purple']
-        return {"bg": choice(colors), "priority": 3}
+        if monotonic() - self.key_time >= .05:
+            self.bg = choice(['blue', 'red', 'pink', 'yellow', 'green', 'purple'])
+            self.key_time = monotonic()
+        return {"bg": self.bg, "priority": 3}
