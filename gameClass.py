@@ -1,8 +1,10 @@
 from tkinter import Tk, Frame, Label, DoubleVar
 from playerClass import Player, PlantSelector, Slot, Lane, HouseSlot
+from plantsClass import Sunflower, Peashooter, Wallnut
+from lawnmoyersClass import Lawnmoyer
 from zombiesClass import Zombie, ZOMBIES
-from entityClass import LivingPlant, LivingZombie, LivingSunflower, LivingPeashooter
-from plantsClass import Sunflower, Peashooter, Wallnut, Lawnmoyer
+from livingentities.livingplants import livingPeashooter, livingplantClass, livingSunflower
+from livingentities.livingzombies import livingzombieClass
 from time import monotonic
 from typing import cast
 from math import floor
@@ -18,11 +20,9 @@ class Game(Tk):
         self.board_height = board_height
         self.board_width = board_width
         self.plant_selectors: list[PlantSelector] = []
-        self.suns_earn_cooldown = DoubleVar(self, value=self.player.SUNS_COOLDOWN)
         self.waves: dict[int, list[Zombie]] = {}
         self.board: list[Lane] = []
         self.speed = 1
-        self.lawnmoyers: list[Lawnmoyer] = []
 
     def set_waves(self, waves: dict[int, list[Zombie]]) -> None:
         if waves:
@@ -56,8 +56,8 @@ class Game(Tk):
                 slot.grid(column=x, row=y)
                 new_lane.append_slot(slot)
         self.board = board
-        self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 1, board[2], self))
-        self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 7.5, board[2], self))
+        self.board[2].enfiler_zombie(livingzombieClass.LivingZombie(ZOMBIES['classic_zombie'], 1, board[2], self))
+        self.board[2].enfiler_zombie(livingzombieClass.LivingZombie(ZOMBIES['classic_zombie'], 7.5, board[2], self))
         deck_frame = Frame(game_frame, bg='grey', padx=5, pady=5)
 
         suns_label = Label(deck_frame, textvariable=self.player.suns)

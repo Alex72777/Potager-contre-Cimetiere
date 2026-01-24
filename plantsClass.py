@@ -1,11 +1,6 @@
 from dataclasses import dataclass
 
 @dataclass
-class Lawnmoyer:
-    name: str = "Lawnmoyer"
-    speed: float = 2.5
-
-@dataclass
 class Plant:
     name: str
     cooldown: float
@@ -16,7 +11,7 @@ class Peashooter(Plant):
     def __init__(self,
                  name,
                  cost,
-                 pea_launch_cooldown = 1.425,
+                 pea_launch_cooldown = 2,
                  pea_damage = 20,
                  frozen_projectile = False,
                  amount_of_peas = 1):

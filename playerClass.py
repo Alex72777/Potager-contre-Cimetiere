@@ -1,6 +1,9 @@
 from dataclasses import dataclass, field
-from plantsClass import Plant, PLANTS, Sunflower, Peashooter, Lawnmoyer
-from entityClass import LivingLawnmoyer, LivingPlant, LivingZombie, LivingSunflower, LivingPeashooter
+from plantsClass import Plant, PLANTS, Sunflower, Peashooter
+from lawnmoyersClass import Lawnmoyer
+from livingentities.livingplants import livingplantClass, livingPeashooter, livingSunflower
+from livingentities.livingzombies import livingzombieClass
+from livingentities.livinglawnmoyers import livinglawnmoyerClass
 from tkinter import Button, Frame, IntVar, Tk, DoubleVar
 from time import monotonic
 from math import floor
@@ -55,7 +58,7 @@ class Slot(Button):
                  master: Frame,
                  x: int,
                  lane: "Lane",
-                 taken_by: LivingPlant | None = None,):
+                 taken_by: livingplantClass.LivingPlant | None = None,):
         super().__init__(master)
         self.taken_by = taken_by
         self.x = x
@@ -79,7 +82,7 @@ class Slot(Button):
             slot_text += lawnmoyer.sous_texte()
 
         if not "priority" in ui_conf.keys():
-            ui_conf["priority"] = 3
+            ui_conf["priority"] = 0
 
         if self.taken_by != None:
             plant_ui_conf = self.taken_by.ui_update(current_tick, last_tick)
@@ -143,9 +146,9 @@ class Lane:
     y: int
     house_frame: Frame
     slots: list[Slot] = field(default_factory= lambda: [])
-    plantes: list[LivingPlant] = field(default_factory= lambda: [])
-    zombies: list[LivingZombie] = field(default_factory= lambda: [])
-    lawnmoyer: LivingLawnmoyer | None = None
+    plantes: list[livingplantClass.LivingPlant] = field(default_factory= lambda: [])
+    zombies: list[livingzombieClass.Zombie] = field(default_factory= lambda: [])
+    lawnmoyer: livinglawnmoyerClass.LivingLawnmoyer | None = None
 
     def __post_init__(self) -> None:
 
@@ -156,7 +159,7 @@ class Lane:
         """
         Docstring
         """
-        lawnmoyer = LivingLawnmoyer(self.house_slot.taken_by, self)
+        lawnmoyer = livinglawnmoyerClass.LivingLawnmoyer(self.house_slot.taken_by, self)
         self.house_slot.taken_by = None
         self.lawnmoyer = lawnmoyer
 
@@ -164,13 +167,13 @@ class Lane:
     def append_slot(self, slot: Slot) -> None:
         self.slots.append(slot)
 
-    def enfiler_zombie(self, zombie: LivingZombie) -> None:
+    def enfiler_zombie(self, zombie: livingzombieClass.LivingZombie) -> None:
         """
         Docstring
         """
         self.zombies.append(zombie)
 
-    def empiler_plante(self, plante: LivingPlant) -> None:
+    def empiler_plante(self, plante: livingplantClass.LivingPlant) -> None:
         """
         Docstring
         """
@@ -195,20 +198,20 @@ class Lane:
         if self.len_plantes == 0:
             return None
 
-        val: LivingLawnmoyer | LivingPlant = self.plantes.pop()
+        val: LivingLawnmoyer | livingplantClass.LivingPlant = self.plantes.pop()
         print(val.name, "tuée.")
-        if isinstance(val, LivingLawnmoyer):
+        if isinstance(val, livinglawnmoyerClass.LivingLawnmoyer):
             return
 
         del val
 
-    def get_zombie(self) -> LivingZombie | None:
+    def get_zombie(self) -> livingzombieClass.Zombie | None:
         if len(self.zombies) == 0:
             return None
 
         return self.zombies[0]
 
-    def get_plante(self) -> LivingPlant | None:
+    def get_plante(self) -> livingplantClass.LivingPlant | None:
         if len(self.plantes) == 0:
             return None
 
@@ -226,12 +229,12 @@ class Lane:
             return
 
         plant: Plant = game.player.selected_plant.plant
-        new_living_plant: LivingPlant | None = None
+        new_living_plant: livingplantClass.LivingPlant | None = None
         if isinstance(plant, Sunflower):
-            new_living_plant = LivingSunflower(plant, slot, game)
+            new_living_plant = livingSunflower.LivingSunflower(plant, slot, game)
 
         if isinstance(plant, Peashooter):
-            new_living_plant = LivingPeashooter(plant, slot, game)
+            new_living_plant = livingPeashooter.LivingPeashooter(plant, slot, game)
 
         if new_living_plant == None:
             return
