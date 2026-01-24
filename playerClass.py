@@ -1,20 +1,11 @@
 from dataclasses import dataclass, field
-from tkinter import Button, Frame, IntVar, Tk, DoubleVar
+from tkinter import IntVar, Tk, DoubleVar
 from time import monotonic
-from math import floor
-from typing import TYPE_CHECKING
 
-from plantsClass import Plant, PLANTS, Sunflower, Peashooter
-from lawnmoyersClass import Lawnmoyer
-
-from livingentities.livingplants import livingplantClass, livingPeashooter, livingSunflower
-from livingentities.livingzombies import livingzombieClass
-from livingentities.livinglawnmoyers import livinglawnmoyerClass
+from entities.plantsClass import Plant, PLANTS
 
 from ui.plantselector import PlantSelector
 
-if TYPE_CHECKING:
-    from gameClass import Game
 
 @dataclass
 class Player:

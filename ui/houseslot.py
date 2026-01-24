@@ -1,6 +1,6 @@
 from tkinter import Button, Frame
 
-from lawnmoyersClass import Lawnmoyer
+from entities.lawnmoyersClass import Lawnmoyer
 
 class HouseSlot(Button):
     def __init__(self,
@@ -17,7 +17,7 @@ class HouseSlot(Button):
                        borderwidth=0,
                        text=(self.taken_by.name.upper() if self.taken_by else ""))
 
-    def update(self, current_tick: float, last_tick: float) -> None:
+    def update_slot(self, current_tick: float, last_tick: float) -> None:
         if self.taken_by != None:
             self.configure(text=self.taken_by.name.upper())
         else:

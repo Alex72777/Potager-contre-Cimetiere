@@ -1,12 +1,18 @@
-from livingentities.livingplants import livingplantClass
-from plantsClass import Peashooter
 from time import monotonic
+from typing import cast
+
+from livingentities.livingplants import livingplantClass
+
+from entities.plantsClass import Peashooter, Plant
+
+from ui.slot import Slot
+
 
 class LivingPeashooter(livingplantClass.LivingPlant):
     """
     La représentation vivante de l'entité.
     """
-    def __init__(self, plant: "Peashooter", slot: "Slot", master: "Game"):
+    def __init__(self, plant: Plant, slot: Slot, master: "Game"):
         if not isinstance(plant, Peashooter):
             raise TypeError("LivingPeashooter requires a Peashooter class instance")
 
@@ -15,6 +21,7 @@ class LivingPeashooter(livingplantClass.LivingPlant):
         self.pea_damage = plant.pea_damage
         self.frozen_projectile = plant.frozen_projectile
         self.lastly_shot = monotonic() - self.pea_launch_cooldown + 1 # Timestamp (-1 second cooldown first time)
+        self.ps_plant = cast(Peashooter, self.plant)
 
     """
     Faire les méthodes de ticking et tout ici et pas dans la boucle principale (fausse POO)
@@ -24,22 +31,19 @@ class LivingPeashooter(livingplantClass.LivingPlant):
         """
         Méthode de ticking pour la classe LivingPeashooter.
         """
-        ps_plant: Peashooter = self.plant
-        if current_tick - self.lastly_shot >= ps_plant.pea_launch_cooldown:
-            for shot in range(ps_plant.amount_of_peas):
+        if current_tick - self.lastly_shot >= self.ps_plant.pea_launch_cooldown:
+            for shot in range(self.ps_plant.amount_of_peas):
                 zombie = self.lane.get_zombie()
                 if zombie and zombie.x >= self.x:
-                    zombie.damage(ps_plant.pea_damage)
+                    zombie.damage(self.ps_plant.pea_damage)
             self.lastly_shot = current_tick
 
     def sous_texte(self, current_tick: float, last_tick: float) -> str:
-        ps_plant: Peashooter = self.plant
-
         text = ""
         if self.lane.get_zombie() != None:
-            text = f"{ps_plant.name.upper()} ({round(ps_plant.pea_launch_cooldown - (monotonic() - self.lastly_shot), 1)})"
+            text = f"{self.ps_plant.name.upper()} ({round(self.ps_plant.pea_launch_cooldown - (monotonic() - self.lastly_shot), 1)})"
         else:
-            text = f"{ps_plant.name.upper()}"
+            text = f"{self.ps_plant.name.upper()}"
 
         if self.health < self.health_scale:
             text += f" [{round(self.health / self.health_scale * 100)}%]"

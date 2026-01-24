@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from tkinter import Button, Frame
 from time import monotonic
 
-from plantsClass import Plant
+from entities.plantsClass import Plant
 
 class PlantSelector(Button):
     def __init__(self,
@@ -23,7 +25,7 @@ class PlantSelector(Button):
             text=self.plant.name,
         )
 
-    def update(self, current_tick: float, last_tick: float) -> None:
+    def update_selector(self, current_tick: float, last_tick: float) -> None:
         """
         Docstring
         """

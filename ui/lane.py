@@ -2,8 +2,8 @@ from dataclasses import dataclass, field
 from tkinter import Frame
 from time import monotonic
 
-from plantsClass import PLANTS_CLASSES, Plant
-from lawnmoyersClass import Lawnmoyer
+from entities.plantsClass import PLANTS_CLASSES, Plant
+from entities.lawnmoyersClass import Lawnmoyer
 
 from livingentities.livingplants.livingplantClass import LivingPlant
 from livingentities.livingplants.livingPeashooter import LivingPeashooter
@@ -34,11 +34,12 @@ class Lane:
 
     def release_lawnmoyer(self) -> None:
         """
-        Docstring
+        Libère la tondeuse de som emplacement pour la rendre vivante.
         """
-        lawnmoyer = LivingLawnmoyer(self.house_slot.taken_by, self)
-        self.house_slot.taken_by = None
-        self.lawnmoyer = lawnmoyer
+        if self.house_slot.taken_by != None:
+            lawnmoyer = LivingLawnmoyer(self.house_slot.taken_by, self)
+            self.house_slot.taken_by = None
+            self.lawnmoyer = lawnmoyer
 
 
     def append_slot(self, slot: Slot) -> None:
@@ -46,20 +47,20 @@ class Lane:
 
     def enfiler_zombie(self, zombie: LivingZombie) -> None:
         """
-        Docstring
+        Ajoute un zombie dans la file.
         """
         self.zombies.append(zombie)
 
     def empiler_plante(self, plante: LivingPlant) -> None:
         """
-        Docstring
+        Empile une plante dans la file.
         """
         plante.slot.taken_by = plante
         self.plantes.append(plante)
 
     def defiler_zombie(self) -> None:
         """
-        Docstring
+        Défile un zombie de la file.
         """
         if self.len_zombie == 0:
             return None
@@ -70,31 +71,37 @@ class Lane:
 
     def depiler_plante(self) -> None:
         """
-        Docstring
+        Dépile une plante de la pile.
         """
         if self.len_plantes == 0:
             return None
 
-        val: LivingLawnmoyer | LivingPlant = self.plantes.pop()
+        val: LivingPlant = self.plantes.pop()
         print(val.name, "tuée.")
-        if isinstance(val, LivingLawnmoyer):
-            return
-
         del val
 
     def get_zombie(self) -> LivingZombie | None:
+        """
+        Renvoie le premier zombie de la file.
+        """
         if len(self.zombies) == 0:
             return None
 
         return self.zombies[0]
 
     def get_plante(self) -> LivingPlant | None:
+        """
+        Renvoie la première plante de la file
+        """
         if len(self.plantes) == 0:
             return None
 
         return self.plantes[-1]
 
     def place_plant(self, game: "Game") -> None:
+        """
+        Logique ajout plante
+        """
         if not game.player.selected_plant:
             return
 

@@ -1,20 +1,15 @@
 from dataclasses import dataclass
-from plantsClass import PLANTS, Plant, Sunflower, Peashooter
-from lawnmoyersClass import Lawnmoyer
-from zombiesClass import Zombie
 from typing import TYPE_CHECKING
-from time import monotonic
-from random import choice
 
-if TYPE_CHECKING:
-    from gameClass import Slot, Game
-    from playerClass import Lane
+from entities.plantsClass import Plant
+
+from ui.slot import Slot
 
 @dataclass
 class LivingPlant:
     master: "Game"
-    plant: "Plant"
-    slot: "Slot"
+    plant: Plant
+    slot: Slot
 
     def __post_init__(self):
         self.name = self.plant.name
@@ -48,6 +43,6 @@ class LivingPlant:
 
     def ui_update(self, current_tick: float, last_tick: float) -> dict:
         """
-        Docstring
+        ui_update
         """
         return {"priority": 0}

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from time import monotonic
 from random import choice
 
-from lawnmoyersClass import Lawnmoyer
+from entities.lawnmoyersClass import Lawnmoyer
 
 @dataclass
 class LivingLawnmoyer:

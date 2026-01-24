@@ -1,22 +1,14 @@
-from tkinter import Tk, Frame, Label, DoubleVar
+from tkinter import Tk, Frame, Label
 from time import monotonic
-from typing import cast
-from math import floor
 
 from playerClass import Player
 
 from ui.plantselector import PlantSelector
-from ui.houseslot import HouseSlot
 from ui.lane import Lane
 from ui.slot import Slot
 
-from plantsClass import Sunflower, Peashooter, Wallnut
-from lawnmoyersClass import Lawnmoyer
-from zombiesClass import Zombie, ZOMBIES
+from entities.zombiesClass import Zombie, ZOMBIES
 
-from livingentities.livingplants.livingplantClass import LivingPlant
-from livingentities.livingplants.livingPeashooter import LivingPeashooter
-from livingentities.livingplants.livingSunflower import LivingSunflower
 from livingentities.livingzombies.livingzombieClass import LivingZombie
 
 class Game(Tk):
@@ -96,7 +88,7 @@ class Game(Tk):
         # Plant selectors ticking
 
         for plant_selector in self.plant_selectors:
-            plant_selector.update(current_tick, last_tick)
+            plant_selector.update_selector(current_tick, last_tick)
 
         # Player's passive suns income
 
@@ -117,7 +109,7 @@ class Game(Tk):
         # Slot update
 
         for lane in self.board:
-            lane.house_slot.update(current_tick, last_tick)
+            lane.house_slot.update_slot(current_tick, last_tick)
             for slot in lane.slots:
                 slot.update_text(current_tick, last_tick)
 

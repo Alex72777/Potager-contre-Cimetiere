@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from time import monotonic
 
-from zombiesClass import Zombie
+from entities.zombiesClass import Zombie
 
 @dataclass
 class LivingZombie:
