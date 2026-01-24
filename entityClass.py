@@ -163,7 +163,6 @@ class LivingZombie:
 
         if self.health == 0:
             self.lane.defiler_zombie()
-            del self
             return
 
         next_plant = self.lane.get_plante()

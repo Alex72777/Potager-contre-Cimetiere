@@ -177,7 +177,7 @@ class Lane:
         plante.slot.taken_by = plante
         self.plantes.append(plante)
 
-    def defiler_zombie(self) -> LivingZombie | None:
+    def defiler_zombie(self) -> None:
         """
         Docstring
         """
@@ -186,9 +186,9 @@ class Lane:
 
         val: LivingZombie = self.zombies.pop(0)
         print(val.name, "tué.")
-        return val
+        del val
 
-    def depiler_plante(self) -> LivingPlant | None:
+    def depiler_plante(self) -> None:
         """
         Docstring
         """
@@ -198,9 +198,9 @@ class Lane:
         val: LivingLawnmoyer | LivingPlant = self.plantes.pop()
         print(val.name, "tuée.")
         if isinstance(val, LivingLawnmoyer):
-            return None
+            return
 
-        return val
+        del val
 
     def get_zombie(self) -> LivingZombie | None:
         if len(self.zombies) == 0:
