@@ -1,13 +1,23 @@
 from tkinter import Tk, Frame, Label, DoubleVar
-from playerClass import Player, PlantSelector, Slot, Lane, HouseSlot
-from plantsClass import Sunflower, Peashooter, Wallnut
-from lawnmoyersClass import Lawnmoyer
-from zombiesClass import Zombie, ZOMBIES
-from livingentities.livingplants import livingPeashooter, livingplantClass, livingSunflower
-from livingentities.livingzombies import livingzombieClass
 from time import monotonic
 from typing import cast
 from math import floor
+
+from playerClass import Player
+
+from ui.plantselector import PlantSelector
+from ui.houseslot import HouseSlot
+from ui.lane import Lane
+from ui.slot import Slot
+
+from plantsClass import Sunflower, Peashooter, Wallnut
+from lawnmoyersClass import Lawnmoyer
+from zombiesClass import Zombie, ZOMBIES
+
+from livingentities.livingplants.livingplantClass import LivingPlant
+from livingentities.livingplants.livingPeashooter import LivingPeashooter
+from livingentities.livingplants.livingSunflower import LivingSunflower
+from livingentities.livingzombies.livingzombieClass import LivingZombie
 
 class Game(Tk):
     def __init__(self,
@@ -56,8 +66,8 @@ class Game(Tk):
                 slot.grid(column=x, row=y)
                 new_lane.append_slot(slot)
         self.board = board
-        self.board[2].enfiler_zombie(livingzombieClass.LivingZombie(ZOMBIES['classic_zombie'], 1, board[2], self))
-        self.board[2].enfiler_zombie(livingzombieClass.LivingZombie(ZOMBIES['classic_zombie'], 7.5, board[2], self))
+        self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 1, board[2], self))
+        self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 7.5, board[2], self))
         deck_frame = Frame(game_frame, bg='grey', padx=5, pady=5)
 
         suns_label = Label(deck_frame, textvariable=self.player.suns)

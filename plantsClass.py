@@ -46,6 +46,12 @@ REPEATER = Peashooter(name="Repeater", cost=200, amount_of_peas=2)
 SUNFLOWER = Sunflower(name="Sunflower", cost=50, suns_cooldown=24.25, suns_income=25)
 WALLNUT = Wallnut(name="Wall-nut", cost=50, health=4000)
 
+PLANTS_CLASSES = {
+    'peashooter': Peashooter,
+    'sunflower': Sunflower,
+    'wallnut': Wallnut,
+}
+
 PLANTS = {
     'peashooter': PEASHOOTER ,
     'snow_pea': SNOW_PEA,
