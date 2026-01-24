@@ -62,7 +62,30 @@ class Slot(Button):
         self._ui_update(ui_conf)
 
     def _ui_update(self, options: dict) -> None:
+        """
+        {"content": {"-1": {"bg": "red"}, "+1": {"bg": "red"}}, "priority": 1}
+        """
         valid_options = ["bg", "fg"]
-        for opt, val in options.items():
-            if opt in valid_options:
-                self[opt] = val
+        if not "content" in options.keys():
+            return
+        cursors: dict[int, dict] = {}
+        for opt, val in options['content'].items():
+            if not str(opt).isdigit() and opt[0] == "+":
+                for i in range(self.x, min(self.lane.len_slots, self.x + int(opt[1:]))):
+                    if not i in cursors:
+                        cursors[i] = val
+            elif not str(opt).isdigit() and opt[0] == "-":
+                for i in range(self.x, max(0, self.x - int(opt[1:])), -1):
+                    if not i in cursors:
+                        cursors[i] = val
+            else:
+                if not int(opt) in cursors:
+                    cursors[int(opt)] = val
+
+        print(cursors)
+        for i, content in cursors.items():
+            # i: 0 content: {"bg": "purple"}
+            for opt, val in content.items():
+                # opt: "bg" val: "purple"
+                print(opt)
+                self.lane.slots[i][opt] = val

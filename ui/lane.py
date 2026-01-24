@@ -9,6 +9,7 @@ from livingentities.livingplants.livingplantClass import LivingPlant
 from livingentities.livingplants.livingPeashooter import LivingPeashooter
 from livingentities.livingplants.livingSunflower import LivingSunflower
 from livingentities.livingplants.livingWallnut import LivingWallnut
+from livingentities.livingplants.livinglandmine import LivingLandmine
 
 from livingentities.livingzombies.livingzombieClass import LivingZombie
 from livingentities.livinglawnmoyers.livinglawnmoyerClass import LivingLawnmoyer
@@ -16,12 +17,15 @@ from livingentities.livinglawnmoyers.livinglawnmoyerClass import LivingLawnmoyer
 from ui.slot import Slot
 from ui.houseslot import HouseSlot
 
+from playerClass import Player
+
 @dataclass
 class Lane:
     """
     Classe contenant la pile des zombies et la pile des plantes.
     """
     y: int
+    player: Player
     house_frame: Frame
     slots: list[Slot] = field(default_factory= lambda: [])
     plantes: list[LivingPlant] = field(default_factory= lambda: [])
@@ -42,6 +46,13 @@ class Lane:
             self.house_slot.taken_by = None
             self.lawnmoyer = lawnmoyer
 
+    def dig_up_plant(self) -> None:
+        plante = self.get_plante()
+        if plante == None:
+            return
+
+        self.player.add_suns(round(plante.plant.cost / 2))
+        self.depiler_plante()
 
     def append_slot(self, slot: Slot) -> None:
         self.slots.append(slot)
@@ -89,7 +100,9 @@ class Lane:
         if len(self.zombies) == 0:
             return None
 
-        return self.zombies[0]
+        for i in range(self.len_zombie):
+            if self.zombies[i].health > 0:
+                return self.zombies[i]
 
     def get_plante(self) -> LivingPlant | None:
         """
@@ -124,6 +137,9 @@ class Lane:
 
         if isinstance(plant, PLANTS_CLASSES['wallnut']):
             new_living_plant = LivingWallnut(plant, slot, game)
+
+        if isinstance(plant, PLANTS_CLASSES['landmine']):
+            new_living_plant = LivingLandmine(plant, slot, game)
 
         if new_living_plant == None:
             return

@@ -49,12 +49,13 @@ class Game(Tk):
 
         board: list[Lane] = []
         for y in range(self.board_height):
-            new_lane = Lane(y, house_frame)
+            new_lane = Lane(y, self.player, house_frame)
             board.append(new_lane)
 
             for x in range(self.board_width):
                 slot = Slot(board_frame, x, new_lane)
                 slot.configure(command = lambda game = self, lane = new_lane: lane.place_plant(game))
+                new_lane.house_slot.configure(command = lambda game = self, lane = new_lane: lane.place_plant(game))
                 slot.grid(column=x, row=y)
                 new_lane.append_slot(slot)
         self.board = board

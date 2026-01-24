@@ -58,6 +58,7 @@ PLANTS_CLASSES = {
     'peashooter': Peashooter,
     'sunflower': Sunflower,
     'wallnut': Wallnut,
+    'landmine': Landmine,
 }
 
 PLANTS = {
@@ -66,5 +67,5 @@ PLANTS = {
     'repeater': Peashooter(name="Repeater", cost=200, amount_of_peas=2),
     'sunflower': Sunflower(name="Sunflower", cost=50, suns_cooldown=24.25, suns_income=25),
     'wallnut': Wallnut(name="Wall-nut", cost=50, health=4000),
-    'landmine': Landmine(name='Landmine', cost=150, health=100, radius=1.5, explosion_damage=150, countdown_time=1.5)
+    'landmine': Landmine(name='Landmine', cost=150, health=100, radius=1.5, explosion_damage=150, countdown_time=3)
 }

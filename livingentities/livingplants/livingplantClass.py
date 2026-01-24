@@ -11,7 +11,7 @@ class LivingPlant:
     slot: Slot
     is_invulnerable: bool = False
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.name = self.plant.name
         self.health_scale = self.plant.health
         self.health = self.health_scale
@@ -19,10 +19,13 @@ class LivingPlant:
         self.x = self.slot.x + .5
         self.slot.taken_by = self
 
-    def damage(self, damages: int):
+    def damage(self, damages: int) -> None:
         """
         damage(amount: int) -> None : inflige 'amount' dégats à self
         """
+        if self.is_invulnerable == True:
+            return
+
         self.health = max(0, self.health - damages)
         if self.health == 0:
             self.lane.depiler_plante()

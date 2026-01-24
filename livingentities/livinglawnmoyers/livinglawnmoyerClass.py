@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from time import monotonic
 from random import choice
+from math import floor
 
 from entities.lawnmoyersClass import Lawnmoyer
 
@@ -24,7 +25,7 @@ class LivingLawnmoyer:
         self.x = min(self.lane.len_slots, self.x + self.speed * dt)
 
         zombie = self.lane.get_zombie()
-        while zombie != None and not zombie.is_alive and zombie.x <= self.x:
+        while zombie != None and zombie.x <= self.x:
             zombie.kill()
             zombie = self.lane.get_zombie()
 
@@ -45,4 +46,4 @@ class LivingLawnmoyer:
         if monotonic() - self.key_time >= .05:
             self.bg = choice(['blue', 'red', 'pink', 'yellow', 'green', 'purple'])
             self.key_time = monotonic()
-        return {"bg": self.bg, "priority": 3}
+        return {"content": {floor(self.x): {"bg": self.bg}}, "priority": 3}

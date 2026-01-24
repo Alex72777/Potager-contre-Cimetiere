@@ -39,6 +39,6 @@ class LivingSunflower(LivingPlant):
         Pour changer la couleur ici
         """
         if current_tick - self.blinked_slot >= 1:
-            return {"bg": self.slot.default_color, "priority": 1}
+            return {"content": {self.x: {"bg": self.slot.default_color}}, "priority": 1}
         else:
-            return {"bg": "yellow", "priority": 1}
+            return {"content": {self.x: {"bg": "yellow"}}, "priority": 1}
