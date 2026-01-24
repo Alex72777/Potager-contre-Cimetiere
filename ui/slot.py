@@ -23,7 +23,6 @@ class Slot(Button):
         ui_conf = {}
 
         lawnmoyer = self.lane.lawnmoyer
-        #lawn_ui_conf = lawn_ui_conf.ui_update(current_tick, last_tick)
         if lawnmoyer != None and self.x <= lawnmoyer.x < self.x + 1:
             ui_conf = lawnmoyer.ui_update(current_tick, last_tick)
             slot_text += lawnmoyer.sous_texte()
@@ -33,6 +32,10 @@ class Slot(Button):
 
         if self.taken_by != None:
             plant_ui_conf = self.taken_by.ui_update(current_tick, last_tick)
+
+            if not "priority" in plant_ui_conf.keys():
+                        plant_ui_conf["priority"] = 0
+
             if plant_ui_conf["priority"] > ui_conf["priority"]:
                 ui_conf = plant_ui_conf
 

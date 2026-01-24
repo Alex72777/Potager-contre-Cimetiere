@@ -1,14 +1,14 @@
 from time import monotonic
 from typing import cast
 
-from livingentities.livingplants import livingplantClass
+from livingentities.livingplants.livingplantClass import LivingPlant
 
 from entities.plantsClass import Peashooter, Plant
 
 from ui.slot import Slot
 
 
-class LivingPeashooter(livingplantClass.LivingPlant):
+class LivingPeashooter(LivingPlant):
     """
     La représentation vivante de l'entité.
     """

@@ -1,13 +1,13 @@
 from time import monotonic
 from typing import cast
 
-from livingentities.livingplants import livingplantClass
+from livingentities.livingplants.livingplantClass import LivingPlant
 
 from entities.plantsClass import Sunflower, Plant
 
 from ui.slot import Slot
 
-class LivingSunflower(livingplantClass.LivingPlant):
+class LivingSunflower(LivingPlant):
     def __init__(self, plant: Plant, slot: Slot, master: "Game"):
         if not isinstance(plant, Sunflower):
             raise TypeError("LivingSunflower requires a Sunflower class instance")

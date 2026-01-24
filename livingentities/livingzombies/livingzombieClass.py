@@ -71,3 +71,9 @@ class LivingZombie:
         Docstring
         """
         return {"priority": 1}
+
+    @property
+    def is_alive(self) -> bool:
+        if self.health == 0:
+            return True
+        return False

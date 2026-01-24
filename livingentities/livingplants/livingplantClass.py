@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
 from entities.plantsClass import Plant
 
@@ -10,6 +9,7 @@ class LivingPlant:
     master: "Game"
     plant: Plant
     slot: Slot
+    is_invulnerable: bool = False
 
     def __post_init__(self):
         self.name = self.plant.name
@@ -25,9 +25,10 @@ class LivingPlant:
         """
         self.health = max(0, self.health - damages)
         if self.health == 0:
-            self.slot.taken_by = None
             self.lane.depiler_plante()
-            del self
+
+    def kill(self) -> None:
+        self.lane.depiler_plante()
 
     def update(self, current_tick: float, last_tick: float) -> None:
         """

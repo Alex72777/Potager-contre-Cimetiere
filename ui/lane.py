@@ -8,6 +8,7 @@ from entities.lawnmoyersClass import Lawnmoyer
 from livingentities.livingplants.livingplantClass import LivingPlant
 from livingentities.livingplants.livingPeashooter import LivingPeashooter
 from livingentities.livingplants.livingSunflower import LivingSunflower
+from livingentities.livingplants.livingWallnut import LivingWallnut
 
 from livingentities.livingzombies.livingzombieClass import LivingZombie
 from livingentities.livinglawnmoyers.livinglawnmoyerClass import LivingLawnmoyer
@@ -78,6 +79,7 @@ class Lane:
 
         val: LivingPlant = self.plantes.pop()
         print(val.name, "tuée.")
+        val.slot.taken_by = None
         del val
 
     def get_zombie(self) -> LivingZombie | None:
@@ -119,6 +121,9 @@ class Lane:
 
         if isinstance(plant, PLANTS_CLASSES['peashooter']):
             new_living_plant = LivingPeashooter(plant, slot, game)
+
+        if isinstance(plant, PLANTS_CLASSES['wallnut']):
+            new_living_plant = LivingWallnut(plant, slot, game)
 
         if new_living_plant == None:
             return

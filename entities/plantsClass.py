@@ -40,11 +40,19 @@ class Wallnut(Plant):
                  cooldown = 30,):
         super().__init__(name=name, cost=cost, cooldown=cooldown, health=health)
 
-PEASHOOTER = Peashooter(name='Peashooter', cost=100)
-SNOW_PEA = Peashooter(name='Snow Pea', cost=175, frozen_projectile=True)
-REPEATER = Peashooter(name="Repeater", cost=200, amount_of_peas=2)
-SUNFLOWER = Sunflower(name="Sunflower", cost=50, suns_cooldown=24.25, suns_income=25)
-WALLNUT = Wallnut(name="Wall-nut", cost=50, health=4000)
+class Landmine(Plant):
+    def __init__(self,
+                 name,
+                 cost,
+                 health,
+                 radius,
+                 explosion_damage,
+                 countdown_time,
+                 cooldown = 15,):
+        super().__init__(name=name, cost=cost, cooldown=cooldown, health=health)
+        self.radius = radius
+        self.explosion_damage = explosion_damage
+        self.countdown_time = countdown_time
 
 PLANTS_CLASSES = {
     'peashooter': Peashooter,
@@ -53,9 +61,10 @@ PLANTS_CLASSES = {
 }
 
 PLANTS = {
-    'peashooter': PEASHOOTER ,
-    'snow_pea': SNOW_PEA,
-    'repeater': REPEATER,
-    'sunflower': SUNFLOWER,
-    'wallnut': WALLNUT,
+    'peashooter': Peashooter(name='Peashooter', cost=100),
+    'snow_pea': Peashooter(name='Snow Pea', cost=175, frozen_projectile=True),
+    'repeater': Peashooter(name="Repeater", cost=200, amount_of_peas=2),
+    'sunflower': Sunflower(name="Sunflower", cost=50, suns_cooldown=24.25, suns_income=25),
+    'wallnut': Wallnut(name="Wall-nut", cost=50, health=4000),
+    'landmine': Landmine(name='Landmine', cost=150, health=100, radius=1.5, explosion_damage=150, countdown_time=1.5)
 }
