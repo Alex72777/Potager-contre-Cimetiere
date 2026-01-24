@@ -43,7 +43,7 @@ class LivingLandmine(LivingPlant):
 	def sous_texte(self, current_tick: float, last_tick: float) -> str:
 		text = self.name.upper()
 		if self.is_primed:
-			text += f" {round(current_tick + self.primed_at, 1)}"
+			text += f" {round(current_tick - self.primed_at, 1)}"
 
 		return text
 
