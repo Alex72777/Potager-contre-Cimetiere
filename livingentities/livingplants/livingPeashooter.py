@@ -41,7 +41,7 @@ class LivingPeashooter(LivingPlant):
     def sous_texte(self, current_tick: float, last_tick: float) -> str:
         text = ""
         if self.lane.get_zombie() != None:
-            text = f"{self.ps_plant.name.upper()} ({round(self.ps_plant.pea_launch_cooldown - (monotonic() - self.lastly_shot), 1)})"
+            text = f"{self.ps_plant.name.upper()} ({round(self.ps_plant.pea_launch_cooldown - (current_tick - self.lastly_shot), 1)})"
         else:
             text = f"{self.ps_plant.name.upper()}"
 

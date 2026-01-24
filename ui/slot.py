@@ -11,6 +11,8 @@ class Slot(Button):
         self.x = x
         self.lane = lane
         self.default_color = ("green2" if self.x % 2 else 'chartreuse3')
+        self.default_foreground_color = "black"
+        self.ui_updated_priority = 0
 
         self.configure(bg=self.default_color,
                        width=20,
@@ -19,6 +21,8 @@ class Slot(Button):
 
     def update_text(self, current_tick: float, last_tick: float) -> None:
         """Updates button text accordingly to plant and/or zombies on it."""
+        if self.ui_updated_priority == 0:
+            self.configure(bg=self.default_color, fg=self.default_foreground_color)
         slot_text = ""
         ui_conf = {}
 
@@ -40,8 +44,6 @@ class Slot(Button):
                 ui_conf = plant_ui_conf
 
             slot_text += self.taken_by.sous_texte(current_tick, last_tick)
-        else:
-            self.configure(bg=self.default_color)
 
         if not "priority" in ui_conf.keys():
             ui_conf["priority"] = 0
@@ -60,6 +62,7 @@ class Slot(Button):
 
         self["text"] = slot_text
         self._ui_update(ui_conf)
+        self.ui_updated_priority = 0
 
     def _ui_update(self, options: dict) -> None:
         """
@@ -71,21 +74,23 @@ class Slot(Button):
         cursors: dict[int, dict] = {}
         for opt, val in options['content'].items():
             if not str(opt).isdigit() and opt[0] == "+":
-                for i in range(self.x, min(self.lane.len_slots, self.x + int(opt[1:]))):
+                for i in range(self.x, min(self.lane.len_slots, self.x + int(opt[1:]) + 1)):
                     if not i in cursors:
                         cursors[i] = val
             elif not str(opt).isdigit() and opt[0] == "-":
-                for i in range(self.x, max(0, self.x - int(opt[1:])), -1):
+                for i in range(self.x, max(0, self.x - int(opt[1:])) - 1, -1):
                     if not i in cursors:
                         cursors[i] = val
             else:
                 if not int(opt) in cursors:
                     cursors[int(opt)] = val
 
-        print(cursors)
+        # print(cursors)
         for i, content in cursors.items():
             # i: 0 content: {"bg": "purple"}
+            # print(i, content)
             for opt, val in content.items():
                 # opt: "bg" val: "purple"
-                print(opt)
+                # print(opt)
                 self.lane.slots[i][opt] = val
+                self.lane.slots[i].ui_updated_priority = options["priority"]

@@ -86,7 +86,7 @@ class Lane:
         Dépile une plante de la pile.
         """
         if self.len_plantes == 0:
-            return None
+            return
 
         val: LivingPlant = self.plantes.pop()
         print(val.name, "tuée.")

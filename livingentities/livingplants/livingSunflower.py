@@ -1,5 +1,6 @@
 from time import monotonic
 from typing import cast
+from math import floor
 
 from livingentities.livingplants.livingplantClass import LivingPlant
 
@@ -38,7 +39,6 @@ class LivingSunflower(LivingPlant):
         """
         Pour changer la couleur ici
         """
-        if current_tick - self.blinked_slot >= 1:
-            return {"content": {self.x: {"bg": self.slot.default_color}}, "priority": 1}
-        else:
-            return {"content": {self.x: {"bg": "yellow"}}, "priority": 1}
+        if current_tick - self.blinked_slot < 1:
+            return {"content": {self.slot.x: {"bg": "yellow"}}, "priority": 1}
+        return {}

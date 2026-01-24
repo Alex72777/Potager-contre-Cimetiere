@@ -21,8 +21,8 @@ class LivingWallnut(LivingPlant):
   def ui_update(self, current_tick: float, last_tick: float) -> dict:
     healh = self.health / self.health_scale
     if healh <= .1:
-      return {"content": {self.x: {"bg": "red"}}, "priority": 1}
+      return {"content": {self.slot.x: {"bg": "red"}}, "priority": 1}
     elif healh <= .25:
-      return {"content": {self.x: {"bg": "orange"}}, "priority": 1}
+      return {"content": {self.slot.x: {"bg": "orange"}}, "priority": 1}
     else:
       return {}
