@@ -5,7 +5,7 @@ from events.eventClass import Event
 # from src.gameClass import Game
 from ui.lane import Lane
 
-class GameEnded(Event):
+class DisplayText(Event):
     # 5 (height) : {"char": [list of tuple slot cords starting from upper left]}
     LETTERS = {
         5: {

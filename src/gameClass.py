@@ -11,8 +11,9 @@ from entities.zombiesClass import Zombie, ZOMBIES
 
 from livingentities.livingzombies.livingzombieClass import LivingZombie
 
-from events.event_game_ended import GameEnded
+from events.event_display_text import DisplayText
 from events.event_seizure import Seizure
+from events.event_invoke_zombie import InvokeZombie
 
 class Game(Tk):
     def __init__(self,
@@ -30,8 +31,9 @@ class Game(Tk):
         self.speed = 1
         self.has_ended = False
         self.events = [
-            GameEnded(event_name="game_ended", text="a", text_slide_speed=1, direction=1, starting_x=0, state=-1, game=self),
-            Seizure(event_name="game_ended", state=-1, game=self, elapse_time=.05, is_ui=True)
+            DisplayText(event_name="game_ended", text="loser", text_slide_speed=1, direction=1, starting_x=0, state=-1, game=self),
+            Seizure(event_name="seizure", state=-1, game=self, elapse_time=.05, is_ui=True),
+            InvokeZombie(game=self, event_name="invoke_zombie", zombie=ZOMBIES['classic_zombie'], interval=10, state=1),
         ]
 
         # self.set_events()
@@ -73,10 +75,10 @@ class Game(Tk):
                 slot.grid(column=x, row=y)
                 new_lane.append_slot(slot)
         self.board = board
-        self.board[0].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 4, board[0], self))
-        self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 4, board[2], self))
-        self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 4.5, board[2], self))
-        self.board[1].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 5, board[1], self))
+        # self.board[0].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 4, board[0], self))
+        # self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 4, board[2], self))
+        # self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 4.5, board[2], self))
+        # self.board[1].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 5, board[1], self))
         deck_frame = Frame(game_frame, bg='grey', padx=5, pady=5)
 
         suns_label = Label(deck_frame, textvariable=self.player.suns)

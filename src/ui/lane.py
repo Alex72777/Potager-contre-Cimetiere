@@ -63,6 +63,7 @@ class Lane:
         Ajoute un zombie dans la file.
         """
         self.zombies.append(zombie)
+        print("Apparition de", zombie.name)
 
     def empiler_plante(self, plante: LivingPlant) -> None:
         """
