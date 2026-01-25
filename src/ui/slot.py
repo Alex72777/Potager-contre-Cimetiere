@@ -21,6 +21,7 @@ class Slot(Button):
 
     def update_text(self, current_tick: float, last_tick: float) -> None:
         """Updates button text accordingly to plant and/or zombies on it."""
+        game = self.lane.player.master
         if self.ui_updated_priority == 0:
             self.configure(bg=self.default_color, fg=self.default_foreground_color)
         slot_text = ""
@@ -60,9 +61,32 @@ class Slot(Button):
                 if zombie_ui_conf["priority"] > ui_conf["priority"]:
                     ui_conf = zombie_ui_conf
 
+        for event in game.events:
+            # print(event.event_name, event.state)
+            if event.is_ui and event.state == 1:
+                event_ui_conf = event.ui_conf
+                event_ui_conf["priority"] = event.priority
+                # print(event_ui_conf)
+
+                if event_ui_conf["priority"] > ui_conf["priority"] and self.pos in event_ui_conf.keys():
+                    ui_conf[self.pos] = event_ui_conf[self.pos]
+        # print(ui_conf)
         self["text"] = slot_text
         self._ui_update(ui_conf)
+        self._event_ui_update(ui_conf)
         self.ui_updated_priority = 0
+
+    def _event_ui_update(self, option: dict) -> None:
+        """"
+        {(0, 0): {"bg": "red"}, "priority": 5}
+        """
+        valid_options = ["bg", "fg"]
+        if not self.pos in option.keys():
+            return
+
+        for opt, val in option[self.pos].items():
+            if opt in valid_options:
+                self[opt] = val
 
     def _ui_update(self, options: dict) -> None:
         """
@@ -71,6 +95,7 @@ class Slot(Button):
         valid_options = ["bg", "fg"]
         if not "content" in options.keys():
             return
+
         cursors: dict[int, dict] = {}
         for opt, val in options['content'].items():
             if not str(opt).isdigit() and opt[0] == "+":

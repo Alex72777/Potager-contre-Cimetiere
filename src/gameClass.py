@@ -11,6 +11,9 @@ from entities.zombiesClass import Zombie, ZOMBIES
 
 from livingentities.livingzombies.livingzombieClass import LivingZombie
 
+from events.event_game_ended import GameEnded
+from events.event_seizure import Seizure
+
 class Game(Tk):
     def __init__(self,
                  difficulty_rating: float = 1,
@@ -26,6 +29,17 @@ class Game(Tk):
         self.board: list[Lane] = []
         self.speed = 1
         self.has_ended = False
+        self.events = [
+            GameEnded(event_name="game_ended", text="a", text_slide_speed=1, direction=1, starting_x=0, state=-1, game=self),
+            Seizure(event_name="game_ended", state=-1, game=self, elapse_time=.05, is_ui=True)
+        ]
+
+        # self.set_events()
+
+    # def set_events(self) -> None:
+    #     """Initialize events for game instance"""
+    #     for event in EVENTS:
+    #         setattr(self, "event_" + event.event_name, event)
 
     def set_waves(self, waves: dict[int, list[Zombie]]) -> None:
         if waves:
@@ -59,6 +73,7 @@ class Game(Tk):
                 slot.grid(column=x, row=y)
                 new_lane.append_slot(slot)
         self.board = board
+        self.board[0].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 4, board[0], self))
         self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 4, board[2], self))
         self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 4.5, board[2], self))
         self.board[1].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 5, board[1], self))
@@ -122,5 +137,7 @@ class Game(Tk):
 
         # Event handling
 
+        for event in self.events:
+            event.update(current_tick, last_tick)
 
         self.after(1, lambda: self.tick(current_tick))

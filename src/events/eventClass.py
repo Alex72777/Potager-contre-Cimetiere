@@ -1,7 +1,7 @@
 from typing import Literal
 
-from src.gameClass import Game
-from src.ui.lane import Lane
+# from src.gameClass import Game
+from ui.lane import Lane
 
 class Event():
     STATE_TO_INT = {'disabled': -1, "paused": 0, "enabled": 1}
@@ -9,10 +9,12 @@ class Event():
     STATE_INT = Literal[-1, 0, 1]
 
     def __init__(self,
-                 game: Game,
+                 game: "Game",
                  event_name: str,
+                 is_ui: bool,
                  state: STATE | STATE_INT = 'disabled') -> None:
-        self.master = game
+        self.game = game
+        self.is_ui = is_ui
         self.event_name = event_name
 
         if not str(state).isdigit() and state in self.STATE_TO_INT.keys():
@@ -33,7 +35,7 @@ class Event():
 
     def update(self, current_tick: float, last_tick: float) -> None:
         if self.state == 1:
-            print(f"Empty update logic for: {self.event_name}")
+            self._ui_update(self.game.board, current_tick, last_tick)
 
-    def ui_update(self, board: list[Lane], current_tick: float, last_tick: float) -> dict:
-        return {}
+    def _ui_update(self, board: list[Lane], current_tick: float, last_tick: float) -> None:
+        pass
