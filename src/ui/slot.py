@@ -50,7 +50,7 @@ class Slot(Button):
             ui_conf["priority"] = 0
 
         for zombie in self.lane.zombies:
-            if self.x < zombie.x <= self.x + 1:
+            if self.x <= zombie.x < self.x + 1:
                 slot_text += " {} ".format(zombie.sous_texte(current_tick, last_tick))
 
                 zombie_ui_conf = zombie.ui_update(current_tick, last_tick)
