@@ -25,6 +25,7 @@ class Game(Tk):
         self.waves: dict[int, list[Zombie]] = {}
         self.board: list[Lane] = []
         self.speed = 1
+        self.has_ended = False
 
     def set_waves(self, waves: dict[int, list[Zombie]]) -> None:
         if waves:
@@ -33,9 +34,8 @@ class Game(Tk):
             self.waves = {}
 
     def end_game(self) -> None:
-        #self.tick = None
         print("ded")
-        pass
+        self.has_ended = True
 
     def draw(self) -> None:
         game_frame = Frame(self, bg='gray64', padx=10, pady=10)
@@ -54,13 +54,14 @@ class Game(Tk):
 
             for x in range(self.board_width):
                 slot = Slot(board_frame, x, new_lane)
-                slot.configure(command = lambda game = self, lane = new_lane: lane.place_plant(game))
-                new_lane.house_slot.configure(command = lambda game = self, lane = new_lane: lane.place_plant(game))
+                slot.configure(command = lambda game = self, lane = new_lane: lane.place_plant())
+                new_lane.house_slot.configure(command = lambda game = self, lane = new_lane: lane.place_plant())
                 slot.grid(column=x, row=y)
                 new_lane.append_slot(slot)
         self.board = board
         self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 4, board[2], self))
         self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 4.5, board[2], self))
+        self.board[1].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 5, board[1], self))
         deck_frame = Frame(game_frame, bg='grey', padx=5, pady=5)
 
         suns_label = Label(deck_frame, textvariable=self.player.suns)
@@ -91,12 +92,24 @@ class Game(Tk):
         for plant_selector in self.plant_selectors:
             plant_selector.update_selector(current_tick, last_tick)
 
+        # Slot update
+
+        for lane in self.board:
+            lane.house_slot.update_slot(current_tick, last_tick)
+            for slot in lane.slots:
+                slot.update_text(current_tick, last_tick)
+
         # Player's passive suns income
 
         self.player.update(current_tick, last_tick)
 
-        # Living entities ticking
+        # end game
 
+        if self.has_ended:
+            for lane in self.board:
+                lane.release_lawnmoyer(destroy_everything=True)
+
+        # Living entities ticking
         for lane in self.board:
             if lane.lawnmoyer != None:
                 lane.lawnmoyer.update(current_tick, last_tick)
@@ -106,12 +119,5 @@ class Game(Tk):
 
             for living_zombie in lane.zombies:
                 living_zombie.update(current_tick, last_tick)
-
-        # Slot update
-
-        for lane in self.board:
-            lane.house_slot.update_slot(current_tick, last_tick)
-            for slot in lane.slots:
-                slot.update_text(current_tick, last_tick)
 
         self.after(1, lambda: self.tick(current_tick))

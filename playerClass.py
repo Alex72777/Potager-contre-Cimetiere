@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from tkinter import IntVar, Tk, DoubleVar
+from tkinter import IntVar, DoubleVar
 from time import monotonic
 
 from entities.plantsClass import Plant, PLANTS
@@ -22,7 +22,7 @@ class Player:
      add_suns(suns: int) -> None : ajoute 'suns' soleils au joueur.
     """
 
-    master: Tk
+    master: "Game"
     unlocked_plants: list[Plant] = field(default_factory=lambda: list(PLANTS.values()))
     selected_plant: PlantSelector | None = None
     SUNS_EARN_RATE = 25

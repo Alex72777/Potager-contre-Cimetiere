@@ -37,14 +37,15 @@ class Lane:
         self.house_slot = HouseSlot(self.house_frame, self, taken_by=Lawnmoyer())
         self.house_slot.grid(row=self.y, column=0)
 
-    def release_lawnmoyer(self) -> None:
+    def release_lawnmoyer(self, destroy_everything: bool = False) -> None:
         """
         Libère la tondeuse de som emplacement pour la rendre vivante.
         """
         if self.house_slot.taken_by != None:
-            lawnmoyer = LivingLawnmoyer(self.house_slot.taken_by, self)
+            lawnmoyer = LivingLawnmoyer(self.house_slot.taken_by, self, destroys_everything=destroy_everything)
             self.house_slot.taken_by = None
             self.lawnmoyer = lawnmoyer
+            # self.player.master.
 
     def dig_up_plant(self) -> None:
         plante = self.get_plante()
@@ -113,11 +114,12 @@ class Lane:
 
         return self.plantes[-1]
 
-    def place_plant(self, game: "Game") -> None:
+    def place_plant(self) -> None:
         """
         Logique ajout plante
         """
-        if not game.player.selected_plant:
+        game = self.player.master
+        if not game.player.selected_plant or game.has_ended:
             return
 
         if self.len_plantes >= self.len_slots:

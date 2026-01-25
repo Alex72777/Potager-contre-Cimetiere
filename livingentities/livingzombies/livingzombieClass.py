@@ -54,7 +54,8 @@ class LivingZombie:
         if self.x == 0:
             # lawnmoyers be cooking (if any)
             if self.lane.house_slot.taken_by != None:
-                self.lane.release_lawnmoyer()
+                # self.lane.release_lawnmoyer()
+                self.master.end_game()
             else:
                 self.master.end_game()
 
@@ -70,7 +71,7 @@ class LivingZombie:
         """
         Docstring
         """
-        return {"priority": 1}
+        return {}
 
     @property
     def is_alive(self) -> bool:
