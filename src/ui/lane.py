@@ -31,21 +31,25 @@ class Lane:
     plantes: list[LivingPlant] = field(default_factory= lambda: [])
     zombies: list[LivingZombie] = field(default_factory= lambda: [])
     lawnmoyer: LivingLawnmoyer | None = None
+    lawnmoyer_released: bool = False
 
     def __post_init__(self) -> None:
 
         self.house_slot = HouseSlot(self.house_frame, self, taken_by=Lawnmoyer())
         self.house_slot.grid(row=self.y, column=0)
 
-    def release_lawnmoyer(self, destroy_everything: bool = False) -> None:
+    def release_lawnmoyer(self) -> None:
         """
         Libère la tondeuse de som emplacement pour la rendre vivante.
         """
-        if self.house_slot.taken_by != None:
+        self.lawnmoyer_released = True
+
+    def update(self, destroy_everything: bool = False) -> None:
+        if ((self.house_slot.taken_by != None and self.player.master.has_ended)
+            or (self.lawnmoyer_released and self.house_slot.taken_by != None)):
             lawnmoyer = LivingLawnmoyer(self.house_slot.taken_by, self, destroys_everything=destroy_everything)
             self.house_slot.taken_by = None
             self.lawnmoyer = lawnmoyer
-            # self.player.master.
 
     def dig_up_plant(self) -> None:
         plante = self.get_plante()

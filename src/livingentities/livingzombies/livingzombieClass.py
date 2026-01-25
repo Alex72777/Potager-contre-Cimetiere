@@ -57,6 +57,7 @@ class LivingZombie:
                 self.lane.release_lawnmoyer()
             else:
                 self.master.end_game()
+                self.kill()
 
     def sous_texte(self, current_tick: float, last_tick: float) -> str:
         if not (current_tick - self.last_attacked >= self.attack_cooldown):

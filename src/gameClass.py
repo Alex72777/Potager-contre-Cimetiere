@@ -50,8 +50,9 @@ class Game(Tk):
             self.waves = {}
 
     def end_game(self) -> None:
-        print("ded")
-        self.has_ended = True
+        if not self.has_ended:
+            print("ded")
+            self.has_ended = True
 
     def draw(self) -> None:
         game_frame = Frame(self, bg='gray64', padx=10, pady=10)
@@ -75,10 +76,6 @@ class Game(Tk):
                 slot.grid(column=x, row=y)
                 new_lane.append_slot(slot)
         self.board = board
-        # self.board[0].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 4, board[0], self))
-        # self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 4, board[2], self))
-        # self.board[2].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 4.5, board[2], self))
-        # self.board[1].enfiler_zombie(LivingZombie(ZOMBIES['classic_zombie'], 5, board[1], self))
         deck_frame = Frame(game_frame, bg='grey', padx=5, pady=5)
 
         suns_label = Label(deck_frame, textvariable=self.player.suns)
@@ -112,6 +109,7 @@ class Game(Tk):
         # Slot update
 
         for lane in self.board:
+            lane.update(self.has_ended)
             lane.house_slot.update_slot(current_tick, last_tick)
             for slot in lane.slots:
                 slot.update_text(current_tick, last_tick)
@@ -124,7 +122,7 @@ class Game(Tk):
 
         if self.has_ended:
             for lane in self.board:
-                lane.release_lawnmoyer(destroy_everything=True)
+                lane.release_lawnmoyer()
 
         # Living entities ticking
         for lane in self.board:

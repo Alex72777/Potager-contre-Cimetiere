@@ -27,7 +27,7 @@ class LivingLawnmoyer:
         self.x = max(0, min(self.lane.len_slots, self.x + self.speed * dt * self.direction))
 
         zombie = self.lane.get_zombie()
-        while zombie != None and zombie.x <= self.x and self.direction > 0:
+        while zombie != None and zombie.x <= self.x + 1 and self.direction > 0:
             zombie.kill()
             zombie = self.lane.get_zombie()
 

@@ -24,11 +24,15 @@ class InvokeZombie(Event):
         self.timestamp = monotonic()
 
     def update(self, current_tick: float, last_tick: float) -> None:
-        lanes: list[Lane] = self.game.board
-        board_len = lanes[0].len_slots
+        if self.state == 1:
+            lanes: list[Lane] = self.game.board
+            board_len = lanes[0].len_slots
 
-        if current_tick - self.timestamp > self.interval:
-            spawning_lane = choice(lanes)
-            new_living_zombie = LivingZombie(self.zombie, board_len, spawning_lane, self.game)
-            spawning_lane.enfiler_zombie(new_living_zombie)
-            self.timestamp = current_tick
+            if self.game.has_ended:
+                self.state = -1
+
+            if current_tick - self.timestamp > self.interval:
+                spawning_lane = choice(lanes)
+                new_living_zombie = LivingZombie(self.zombie, board_len, spawning_lane, self.game)
+                spawning_lane.enfiler_zombie(new_living_zombie)
+                self.timestamp = current_tick

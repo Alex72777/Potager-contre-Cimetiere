@@ -48,7 +48,10 @@ class LivingLandmine(LivingPlant):
 		# print(current_tick - self.primed_at)
 
 	def sous_texte(self, current_tick: float, last_tick: float) -> str:
-		text = self.name.upper()
+		text = ""
+
+		if not self.has_blown:
+			text += self.name.upper()
 
 		if self.is_primed and not self.has_blown:
 			text += f" {round(self.countdown_time - (current_tick - self.primed_at), 1)}"
