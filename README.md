@@ -4,7 +4,7 @@ Projet piles et files Terminale
 
 `python3 main.py`
 
-tree -I __pycache__ | sed 's/$/  /'
+tree -I \_\_pycache\_\_ | sed 's/$/  /'
 
 .  
 ├── README.md  
