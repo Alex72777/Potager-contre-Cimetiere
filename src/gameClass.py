@@ -120,4 +120,7 @@ class Game(Tk):
             for living_zombie in lane.zombies:
                 living_zombie.update(current_tick, last_tick)
 
+        # Event handling
+
+
         self.after(1, lambda: self.tick(current_tick))

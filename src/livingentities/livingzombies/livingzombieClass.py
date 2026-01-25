@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from time import monotonic
+from math import floor
 
 from entities.zombiesClass import Zombie
 
@@ -62,7 +62,7 @@ class LivingZombie:
     def sous_texte(self, current_tick: float, last_tick: float) -> str:
         if not (current_tick - self.last_attacked >= self.attack_cooldown):
             return f"""
-{self.name.upper()} [{round(self.health / self.health_scale * 100)}%] ({round(self.attack_cooldown - (monotonic() - self.last_attacked), 1)})
+{self.name.upper()} [{round(self.health / self.health_scale * 100)}%] ({round(self.attack_cooldown - (current_tick - self.last_attacked), 1)})
 """
         else:
             return f"{self.name.upper()} [{round(self.health / self.health_scale * 100)}%]"
@@ -71,7 +71,7 @@ class LivingZombie:
         """
         Docstring
         """
-        return {}
+        return {"content": {floor(self.x): {"bg": "red"}}, "priority": 1}
 
     @property
     def is_alive(self) -> bool:

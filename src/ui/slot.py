@@ -38,7 +38,7 @@ class Slot(Button):
             plant_ui_conf = self.taken_by.ui_update(current_tick, last_tick)
 
             if not "priority" in plant_ui_conf.keys():
-                        plant_ui_conf["priority"] = 0
+                plant_ui_conf["priority"] = 0
 
             if plant_ui_conf["priority"] > ui_conf["priority"]:
                 ui_conf = plant_ui_conf
@@ -94,3 +94,8 @@ class Slot(Button):
                 # print(opt)
                 self.lane.slots[i][opt] = val
                 self.lane.slots[i].ui_updated_priority = options["priority"]
+
+    @property
+    def pos(self) -> tuple[int, int]:
+        """Returns tuple as: (y, x)"""
+        return (self.lane.y, self.x)
