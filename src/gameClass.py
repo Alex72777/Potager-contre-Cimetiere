@@ -9,7 +9,7 @@ from ui.slot import Slot
 
 from entities.zombiesClass import Zombie, ZOMBIES
 
-from livingentities.livingzombies.livingzombieClass import LivingZombie
+from events.eventClass import Event
 
 from events.event_display_text import DisplayText
 from events.event_seizure import Seizure
@@ -30,11 +30,11 @@ class Game(Tk):
         self.board: list[Lane] = []
         self.speed = 1
         self.has_ended = False
-        self.events = [
-            DisplayText(event_name="game_ended", text="loser", text_slide_speed=1, direction=1, starting_x=0, state=-1, game=self),
-            Seizure(event_name="seizure", state=-1, game=self, elapse_time=.05, is_ui=True),
-            InvokeZombie(game=self, event_name="invoke_zombie", zombie=ZOMBIES['classic_zombie'], interval=10, state=1),
-        ]
+        self.events: dict[str, Event] = {
+            "event_game_ended": DisplayText(event_name="game_ended", text="loser", text_slide_speed=1, direction=1, starting_x=0, game=self),
+            "event_seizure": Seizure(event_name="seizure", game=self, elapse_time=.05),
+            "event_invoke_zombie": InvokeZombie(game=self, event_name="invoke_zombie", zombie=ZOMBIES['classic_zombie'], interval=10),
+        }
 
         # self.set_events()
 
@@ -49,10 +49,16 @@ class Game(Tk):
         else:
             self.waves = {}
 
+    def start_game(self) -> None:
+        self.events['event_invoke_zombie'].enable()
+        print("game started")
+
     def end_game(self) -> None:
         if not self.has_ended:
-            print("ded")
+            print('game stopped')
             self.has_ended = True
+            self.events['event_game_ended'].enable()
+            self.events['event_seizure'].enable()
 
     def draw(self) -> None:
         game_frame = Frame(self, bg='gray64', padx=10, pady=10)
@@ -71,8 +77,8 @@ class Game(Tk):
 
             for x in range(self.board_width):
                 slot = Slot(board_frame, x, new_lane)
-                slot.configure(command = lambda game = self, lane = new_lane: lane.place_plant())
-                new_lane.house_slot.configure(command = lambda game = self, lane = new_lane: lane.place_plant())
+                slot.configure(command = lambda lane = new_lane: lane.interact_with())
+                new_lane.house_slot.configure(command = lambda lane = new_lane: lane.interact_with())
                 slot.grid(column=x, row=y)
                 new_lane.append_slot(slot)
         self.board = board
@@ -96,6 +102,7 @@ class Game(Tk):
 
         game_frame.pack(fill='both', expand=True)
 
+        self.start_game()
         self.after(1, lambda: self.tick(monotonic()))
         self.mainloop()
 
@@ -137,7 +144,7 @@ class Game(Tk):
 
         # Event handling
 
-        for event in self.events:
+        for event in self.events.values():
             event.update(current_tick, last_tick)
 
         self.after(1, lambda: self.tick(current_tick))

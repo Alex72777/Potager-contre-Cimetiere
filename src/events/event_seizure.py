@@ -8,10 +8,9 @@ class Seizure(Event):
     def __init__(self,
                  game: "Game",
                  event_name: str,
-                 is_ui: bool,
                  elapse_time: float,
                  state: Literal['disabled'] | Literal['paused'] | Literal['enabled'] | Literal[-1] | Literal[0] | Literal[1] = 'disabled') -> None:
-        super().__init__(game, event_name, is_ui, state)
+        super().__init__(game, event_name, priority=5, state=state)
         self.game = game
         self.timestamp = 0
         self.elapse_time = elapse_time

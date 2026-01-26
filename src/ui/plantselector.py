@@ -8,7 +8,7 @@ from entities.plantsClass import Plant
 class PlantSelector(Button):
     def __init__(self,
                  master: Frame,
-                 plant: Plant,
+                 plant: Plant | None,
                  player: "Player"):
         super().__init__(master)
         self.player = player
@@ -22,17 +22,28 @@ class PlantSelector(Button):
             width=15,
             height=3,
             borderwidth=1,
-            text=self.plant.name,
         )
+
+        if self.plant is None:
+            self['text'] = "Unstack"
+        else:
+            self['text'] = self.plant.name
 
     def update_selector(self, current_tick: float, last_tick: float) -> None:
         """
         Docstring
         """
+        if self.player.selected_plant == self:
+            self['bg'] = self.hovered_color
+        else:
+            self['bg'] = self.default_color
+
+        if self.plant is None:
+            return
+
         if monotonic() - self.last_used > self.plant.cooldown:
             self.configure(
                 text=f"{self.plant.name} [{self.plant.cost}]",
-                bg=(self.default_color if self.player.selected_plant != self else self.hovered_color)
             )
         else:
             self.configure(

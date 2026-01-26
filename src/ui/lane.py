@@ -45,8 +45,7 @@ class Lane:
         self.lawnmoyer_released = True
 
     def update(self, destroy_everything: bool = False) -> None:
-        if ((self.house_slot.taken_by != None and self.player.master.has_ended)
-            or (self.lawnmoyer_released and self.house_slot.taken_by != None)):
+        if self.house_slot.taken_by != None and (self.player.master.has_ended or self.lawnmoyer_released):
             lawnmoyer = LivingLawnmoyer(self.house_slot.taken_by, self, destroys_everything=destroy_everything)
             self.house_slot.taken_by = None
             self.lawnmoyer = lawnmoyer
@@ -119,9 +118,9 @@ class Lane:
 
         return self.plantes[-1]
 
-    def place_plant(self) -> None:
+    def interact_with(self) -> None:
         """
-        Logique ajout plante
+        Logique ajout plante et enlever plante
         """
         game = self.player.master
         if not game.player.selected_plant or game.has_ended:

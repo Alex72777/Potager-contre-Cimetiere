@@ -16,9 +16,8 @@ class InvokeZombie(Event):
                  event_name: str,
                  zombie: Zombie,
                  interval: float,
-                 is_ui: bool = False,
                  state: Literal['disabled'] | Literal['paused'] | Literal['enabled'] | Literal[-1] | Literal[0] | Literal[1] = 'disabled') -> None:
-        super().__init__(game, event_name, is_ui, state)
+        super().__init__(game, event_name, priority=1, state=state)
         self.zombie = zombie
         self.interval = interval
         self.timestamp = monotonic()

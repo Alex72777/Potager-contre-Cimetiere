@@ -25,15 +25,14 @@ class Slot(Button):
         if self.ui_updated_priority == 0:
             self.configure(bg=self.default_color, fg=self.default_foreground_color)
         slot_text = ""
-        ui_conf = {}
+        ui_conf = {"content": {}, "priority": 0}
 
         lawnmoyer = self.lane.lawnmoyer
         if lawnmoyer != None and self.x <= lawnmoyer.x < self.x + 1:
-            ui_conf = lawnmoyer.ui_update(current_tick, last_tick)
+            lawnmoyer_conf = lawnmoyer.ui_update(current_tick, last_tick)
+            if lawnmoyer_conf['priority'] > ui_conf['priority']:
+                ui_conf = lawnmoyer_conf
             slot_text += lawnmoyer.sous_texte()
-
-        if not "priority" in ui_conf.keys():
-            ui_conf["priority"] = 0
 
         if self.taken_by != None:
             plant_ui_conf = self.taken_by.ui_update(current_tick, last_tick)
@@ -45,9 +44,6 @@ class Slot(Button):
                 ui_conf = plant_ui_conf
 
             slot_text += self.taken_by.sous_texte(current_tick, last_tick)
-
-        if not "priority" in ui_conf.keys():
-            ui_conf["priority"] = 0
 
         for zombie in self.lane.zombies:
             if self.x <= zombie.x < self.x + 1:
@@ -61,32 +57,20 @@ class Slot(Button):
                 if zombie_ui_conf["priority"] > ui_conf["priority"]:
                     ui_conf = zombie_ui_conf
 
-        for event in game.events:
+        for event in game.events.values():
             # print(event.event_name, event.state)
-            if event.is_ui and event.state == 1:
-                event_ui_conf = event.ui_conf
+            event_ui_conf = event.ui_conf
+
+            if event.state == 1:
                 event_ui_conf["priority"] = event.priority
                 # print(event_ui_conf)
 
                 if event_ui_conf["priority"] > ui_conf["priority"] and self.pos in event_ui_conf.keys():
-                    ui_conf[self.pos] = event_ui_conf[self.pos]
+                    ui_conf['content'][self.x] = event_ui_conf[self.pos]
         # print(ui_conf)
         self["text"] = slot_text
         self._ui_update(ui_conf)
-        self._event_ui_update(ui_conf)
         self.ui_updated_priority = 0
-
-    def _event_ui_update(self, option: dict) -> None:
-        """"
-        {(0, 0): {"bg": "red"}, "priority": 5}
-        """
-        valid_options = ["bg", "fg"]
-        if not self.pos in option.keys():
-            return
-
-        for opt, val in option[self.pos].items():
-            if opt in valid_options:
-                self[opt] = val
 
     def _ui_update(self, options: dict) -> None:
         """

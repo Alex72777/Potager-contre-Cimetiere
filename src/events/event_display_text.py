@@ -20,7 +20,7 @@ class DisplayText(Event):
                  direction: float,
                  starting_x: float,
                  state: Literal['disabled'] | Literal['paused'] | Literal['enabled'] | Literal[-1] | Literal[0] | Literal[1] = 'disabled',) -> None:
-        super().__init__(game, event_name, True, state)
+        super().__init__(game, event_name, priority=5, state=state)
         self.text = text
         self.text_slide_speed = text_slide_speed
         self.direction = direction
@@ -29,7 +29,6 @@ class DisplayText(Event):
         self.priority = 5
 
         self.x = 0
-        self.ui_conf = {}
 
     def update(self, current_tick: float, last_tick: float) -> None:
         dt = current_tick - last_tick
@@ -44,8 +43,4 @@ class DisplayText(Event):
         # returns {(0, 0): {"bg": "red"}}
 
         # {(0, 0): {"bg": "red"}}
-        rand_slot = (randint(0, len(board)), randint(0, board[0].len_slots))
-        display_slots: dict[tuple, dict] = {}
-        display_slots[rand_slot] = {"bg": "blue"}
-
-        self.ui_conf = display_slots
+        return
