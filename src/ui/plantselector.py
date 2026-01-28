@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from tkinter import Button, Frame
-from time import monotonic
 
 from entities.plantsClass import Plant
 
@@ -41,7 +40,7 @@ class PlantSelector(Button):
         if self.plant is None:
             return
 
-        if monotonic() - self.last_used > self.plant.cooldown:
+        if current_tick - self.last_used > self.plant.cooldown:
             self.configure(
                 text=f"{self.plant.name} [{self.plant.cost}]",
             )

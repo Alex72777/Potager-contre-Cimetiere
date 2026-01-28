@@ -96,6 +96,11 @@ class Game(Tk):
             btn.pack()
             self.plant_selectors.append(btn)
 
+        unstack_btn = PlantSelector(deck_frame, None, self.player)
+        unstack_btn.pack(side='bottom')
+        unstack_btn.configure(command= lambda btn = unstack_btn: self.player.select_plant(btn))
+        self.plant_selectors.append(unstack_btn)
+
         deck_frame.pack(side='left', fill='y')
         house_frame.pack(side='left')
         board_frame.pack(side='left')

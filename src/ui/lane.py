@@ -123,7 +123,11 @@ class Lane:
         Logique ajout plante et enlever plante
         """
         game = self.player.master
-        if not game.player.selected_plant or game.has_ended:
+        if self.player.selected_plant is None or game.has_ended:
+            return
+
+        if self.player.selected_plant.plant is None:
+            self.dig_up_plant()
             return
 
         if self.len_plantes >= self.len_slots:

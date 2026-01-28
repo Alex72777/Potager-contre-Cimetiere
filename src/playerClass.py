@@ -36,7 +36,7 @@ class Player:
 
     def select_plant(self, selectable_plant: PlantSelector) -> None:
         time_elapsed: float = monotonic() - selectable_plant.last_used
-        if time_elapsed < selectable_plant.plant.cooldown:
+        if selectable_plant.plant and time_elapsed < selectable_plant.plant.cooldown:
             return
 
         if self.selected_plant and self.selected_plant == selectable_plant:
