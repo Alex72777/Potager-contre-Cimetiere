@@ -71,7 +71,8 @@ class LivingZombie:
         """
         Docstring
         """
-        return {"content": {min(self.lane.len_slots - 1, floor(self.x)): {"bg": "red"}}, "priority": 1}
+        return {}
+        # return {"content": {min(self.lane.len_slots - 1, floor(self.x)): {"bg": "red"}}, "priority": 1}
 
     @property
     def is_alive(self) -> bool:

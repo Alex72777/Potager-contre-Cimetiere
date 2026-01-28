@@ -48,7 +48,7 @@ class Player:
         self.suns.set(max(0, self.suns.get() + suns))
 
     def update(self, current_tick: float, last_tick: float) -> None:
-        if monotonic() - self.lastly_earned_suns >= self.SUNS_COOLDOWN:
+        if current_tick - self.lastly_earned_suns >= self.SUNS_COOLDOWN:
             self.add_suns(self.SUNS_EARN_RATE)
             self.lastly_earned_suns = current_tick
         else:

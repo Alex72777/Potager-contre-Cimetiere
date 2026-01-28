@@ -60,8 +60,7 @@ class Slot(Button):
         for event in game.events.values():
             # print(event.event_name, event.state)
             event_ui_conf: dict = event.ui_conf
-
-            if event_ui_conf.get("priority", 0) > ui_conf["priority"] and self.pos in event_ui_conf.keys():
+            if event.priority > ui_conf["priority"] and self.pos in event_ui_conf.keys():
                 ui_conf['content'][self.x] = event_ui_conf[self.pos]
         # print(ui_conf)
         self["text"] = slot_text

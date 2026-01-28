@@ -10,8 +10,9 @@ class Zombie:
     attack_range = .2
     attack_cooldown = 1.
 
-CLASSIC_ZOMBIE = Zombie(name="Zombie", health=190, attack_damage=100)
-
 ZOMBIES: dict[str, Zombie] = {
-    'classic_zombie': CLASSIC_ZOMBIE,
+    'classic_zombie': Zombie(name="Zombie", health=200, attack_damage=100),
+    'heavy_zombie': Zombie(name="Heavy Zombie", health=300, attack_damage=100),
+    'armored_zombie': Zombie(name="Armored Zombie", health=450, attack_damage=100),
+    'patrol_zombie': Zombie(name="Patrol Zombie", health=200, attack_damage=250),
 }

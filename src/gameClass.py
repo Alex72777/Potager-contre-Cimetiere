@@ -33,7 +33,7 @@ class Game(Tk):
         self.events: dict[str, Event] = {
             "event_game_ended": DisplayText(event_name="game_ended", text="loser", text_slide_speed=1, direction=1, starting_x=0, game=self),
             "event_seizure": Seizure(event_name="seizure", game=self, elapse_time=.05),
-            "event_invoke_zombie": InvokeZombie(game=self, event_name="invoke_zombie", zombie=ZOMBIES['classic_zombie'], interval=10),
+            "event_invoke_zombie": InvokeZombie(game=self, event_name="invoke_zombie", zombie=list(ZOMBIES.values()), interval=10),
         }
 
         # self.set_events()
