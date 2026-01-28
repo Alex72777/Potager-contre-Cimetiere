@@ -18,7 +18,7 @@ class Event():
         self.name = event_name
         self.priority = priority
 
-        self.ui_conf: dict[tuple[int, int], dict[str, str]] = {}
+        self._ui_conf: dict[tuple[int, int], dict[str, str]] = {}
 
         if not str(state).isdigit() and state in self.STATE_TO_INT.keys():
             new_state = str(state)
@@ -57,3 +57,13 @@ class Event():
 
     def _ui_update(self, board: list[Lane], current_tick: float, last_tick: float) -> None:
         self.ui_conf = {}
+
+    @property
+    def ui_conf(self) -> dict:
+        if self.state == 1 or self.state == 0:
+            return self._ui_conf
+        return {}
+
+    @ui_conf.setter
+    def ui_conf(self, val: dict) -> None:
+        self._ui_conf = val

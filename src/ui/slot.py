@@ -59,14 +59,10 @@ class Slot(Button):
 
         for event in game.events.values():
             # print(event.event_name, event.state)
-            event_ui_conf = event.ui_conf
+            event_ui_conf: dict = event.ui_conf
 
-            if event.state == 1:
-                event_ui_conf["priority"] = event.priority
-                # print(event_ui_conf)
-
-                if event_ui_conf["priority"] > ui_conf["priority"] and self.pos in event_ui_conf.keys():
-                    ui_conf['content'][self.x] = event_ui_conf[self.pos]
+            if event_ui_conf.get("priority", 0) > ui_conf["priority"] and self.pos in event_ui_conf.keys():
+                ui_conf['content'][self.x] = event_ui_conf[self.pos]
         # print(ui_conf)
         self["text"] = slot_text
         self._ui_update(ui_conf)
@@ -74,7 +70,7 @@ class Slot(Button):
 
     def _ui_update(self, options: dict) -> None:
         """
-        {"content": {"-1": {"bg": "red"}, "+1": {"bg": "red"}}, "priority": 1}
+        {"content": {"-1": {"bg": "red"}, "+1": {"bg": "red"}, pos.x: {"bg": "red"}}, "priority": 1}
         """
         valid_options = ["bg", "fg"]
         if not "content" in options.keys():
