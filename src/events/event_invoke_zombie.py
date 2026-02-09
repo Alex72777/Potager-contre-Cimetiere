@@ -35,8 +35,8 @@ class InvokeZombie(Event):
             lanes: list[Lane] = self.game.board
             board_len = lanes[0].len_slots
 
-            if self.game.has_ended:
-                self.state = -1
+#             if self.game.has_ended:
+#                 self.state = -1
 
             if current_tick - self.timestamp > self.interval:
                 spawning_lane = self.next_lane

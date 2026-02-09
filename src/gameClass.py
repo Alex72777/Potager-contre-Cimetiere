@@ -19,7 +19,7 @@ class Game(Tk):
     def __init__(self,
                  difficulty_rating: float = 1,
                  board_height: int = 5,
-                 board_width: int = 9) -> None:
+                 board_width: int = 8) -> None:
         super().__init__()
         self.player = Player(self)
         self.difficulty_rating = difficulty_rating
@@ -59,6 +59,7 @@ class Game(Tk):
             self.has_ended = True
             self.events['event_game_ended'].enable()
             self.events['event_seizure'].enable()
+            self.events['event_invoke_zombie'].disable()
 
     def draw(self) -> None:
         game_frame = Frame(self, bg='gray64', padx=10, pady=10)

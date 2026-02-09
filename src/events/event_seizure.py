@@ -5,6 +5,7 @@ from events.eventClass import Event
 from ui.lane import Lane
 
 class Seizure(Event):
+    """test event"""
     def __init__(self,
                  game: "Game",
                  event_name: str,
