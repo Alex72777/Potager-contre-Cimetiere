@@ -9,6 +9,7 @@ class LivingZombie:
     x: float
     lane: "Lane"
     master: "Game"
+    is_boss: bool = False
 
     def __post_init__(self):
         self.name = self.zombie.name

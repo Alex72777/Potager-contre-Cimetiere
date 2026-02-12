@@ -84,6 +84,11 @@ class Lane:
 
         val: LivingZombie = self.zombies.pop(0)
         print(val.name, "tué.")
+        if val.is_boss == True:
+            self.player.killed_bosses += 1
+        else:
+            self.player.killed_zombies += 1
+        
         del val
 
     def depiler_plante(self) -> None:
@@ -111,7 +116,7 @@ class Lane:
 
     def get_plante(self) -> LivingPlant | None:
         """
-        Renvoie la première plante de la file
+        Renvoie la première plante de la pile
         """
         if len(self.plantes) == 0:
             return None
@@ -142,13 +147,13 @@ class Lane:
         if isinstance(plant, PLANTS_CLASSES['sunflower']):
             new_living_plant = LivingSunflower(plant, slot, game)
 
-        if isinstance(plant, PLANTS_CLASSES['peashooter']):
+        elif isinstance(plant, PLANTS_CLASSES['peashooter']):
             new_living_plant = LivingPeashooter(plant, slot, game)
 
-        if isinstance(plant, PLANTS_CLASSES['wallnut']):
+        elif isinstance(plant, PLANTS_CLASSES['wallnut']):
             new_living_plant = LivingWallnut(plant, slot, game)
 
-        if isinstance(plant, PLANTS_CLASSES['landmine']):
+        elif isinstance(plant, PLANTS_CLASSES['landmine']):
             new_living_plant = LivingLandmine(plant, slot, game)
 
         if new_living_plant == None:

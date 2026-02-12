@@ -15,10 +15,12 @@ class InvokeZombie(Event):
                  game: "Game",
                  event_name: str,
                  zombie: Zombie | list[Zombie],
+                 bosses: Zombie | list[Zombie],
                  interval: float,
                  state: Literal['disabled'] | Literal['paused'] | Literal['enabled'] | Literal[-1] | Literal[0] | Literal[1] = 'disabled') -> None:
         super().__init__(game, event_name, priority=5, state=state)
         self.zombie = zombie
+        self.bosses = bosses
         self.interval = interval
         self.timestamp = monotonic()
         self.keytime = 0
@@ -39,12 +41,20 @@ class InvokeZombie(Event):
 #                 self.state = -1
 
             if current_tick - self.timestamp > self.interval:
+                killed_zombies = self.game.player.killed_zombies
                 spawning_lane = self.next_lane
-                if isinstance(self.zombie, list):
-                    new_living_zombie = LivingZombie(choice(self.zombie), board_len, spawning_lane, self.game)
+                
+                if killed_zombies % 10 == 0 or killed_zombies > 0:
+                    if isinstance(self.zombie, list):
+                        new_living_zombie = LivingZombie(choice(self.bosses), board_len, spawning_lane, self.game)
+                    else:
+                        new_living_zombie = LivingZombie(self.bosses, board_len, spawning_lane, self.game)
                 else:
-                    new_living_zombie = LivingZombie(self.zombie, board_len, spawning_lane, self.game)
-
+                    if isinstance(self.zombie, list):
+                        new_living_zombie = LivingZombie(choice(self.zombie), board_len, spawning_lane, self.game)
+                    else:
+                        new_living_zombie = LivingZombie(self.zombie, board_len, spawning_lane, self.game)
+                
                 self.next_lane.enfiler_zombie(new_living_zombie)
                 self.timestamp = current_tick
                 self.next_lane = choice(lanes)

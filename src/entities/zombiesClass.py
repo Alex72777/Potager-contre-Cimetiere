@@ -16,3 +16,7 @@ ZOMBIES: dict[str, Zombie] = {
     'armored_zombie': Zombie(name="Armored Zombie", health=450, attack_damage=100),
     'patrol_zombie': Zombie(name="Patrol Zombie", health=200, attack_damage=250),
 }
+
+BOSSES: dict[str, Zombie] = {
+    'boss_hulk': Zombie(name="Hulk", health=2000, attack_damage=250),
+}

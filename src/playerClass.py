@@ -25,6 +25,8 @@ class Player:
     master: "Game"
     unlocked_plants: list[Plant] = field(default_factory=lambda: list(PLANTS.values()))
     selected_plant: PlantSelector | None = None
+    killed_zombies: int = 0
+    killed_bosses: int = 0
     SUNS_EARN_RATE = 25
     SUNS_COOLDOWN = 10 # seconds
     DEFAULT_SUNS = 1000
