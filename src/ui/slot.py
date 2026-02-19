@@ -10,7 +10,7 @@ class Slot(Button):
         self.taken_by = taken_by
         self.x = x
         self.lane = lane
-        self.default_color = ("green2" if self.x % 2 else 'chartreuse3')
+        self.default_color = ("green2" if (self.x + self.lane.y) % 2 else 'chartreuse3')
         self.default_foreground_color = "black"
         self.ui_updated_priority = 0
 

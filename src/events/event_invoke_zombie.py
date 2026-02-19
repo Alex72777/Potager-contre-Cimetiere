@@ -44,7 +44,7 @@ class InvokeZombie(Event):
                 killed_zombies = self.game.player.killed_zombies
                 spawning_lane = self.next_lane
                 
-                if killed_zombies % 10 == 0 or killed_zombies > 0:
+                if killed_zombies % 10 == 0 and killed_zombies > 0:
                     if isinstance(self.zombie, list):
                         new_living_zombie = LivingZombie(choice(self.bosses), board_len, spawning_lane, self.game)
                     else:

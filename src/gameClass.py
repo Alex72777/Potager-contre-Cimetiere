@@ -14,6 +14,7 @@ from events.eventClass import Event
 from events.event_display_text import DisplayText
 from events.event_seizure import Seizure
 from events.event_invoke_zombie import InvokeZombie
+from events.event_waves import Waves
 
 class Game(Tk):
     def __init__(self,
@@ -40,6 +41,7 @@ class Game(Tk):
                 bosses=list(BOSSES.values()),
                 interval=10
                 ),
+            "event_waves": Waves(event_name="zombie_waves", game=self),
         }
 
         # self.set_events()
