@@ -2,10 +2,12 @@ from typing import Literal
 from random import randint
 
 from events.eventClass import Event
-# from src.gameClass import Game
 from ui.lane import Lane
 
 class DisplayText(Event):
+    """"
+    DisplayText : display text on the lanes by applying colors on the cells.
+    """
     # 5 (height) : {"char": [list of tuple slot cords starting from upper left]}
     LETTERS = {
         5: {

@@ -74,6 +74,7 @@ class Lane:
         """
         plante.slot.taken_by = plante
         self.plantes.append(plante)
+        self.player.amount_living_plants += 1
 
     def defiler_zombie(self) -> None:
         """
@@ -99,7 +100,8 @@ class Lane:
             return
 
         val: LivingPlant = self.plantes.pop()
-        print(val.name, "tuée.")
+        self.player.amount_living_plants = max(0, self.player.amount_living_plants - 1)
+        print(f"{val.name} tuée. {self.player.amount_living_plants} remaining.",)
         val.slot.taken_by = None
         del val
 

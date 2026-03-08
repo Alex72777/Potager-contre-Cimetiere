@@ -1,6 +1,6 @@
 from typing import Literal
 from time import monotonic
-from random import randint, choice
+from random import choice
 
 from events.eventClass import Event
 
@@ -37,15 +37,12 @@ class InvokeZombie(Event):
             lanes: list[Lane] = self.game.board
             board_len = lanes[0].len_slots
 
-#             if self.game.has_ended:
-#                 self.state = -1
-
             if current_tick - self.timestamp > self.interval:
                 killed_zombies = self.game.player.killed_zombies
                 spawning_lane = self.next_lane
                 
                 if killed_zombies % 10 == 0 and killed_zombies > 0:
-                    if isinstance(self.zombie, list):
+                    if isinstance(self.bosses, list):
                         new_living_zombie = LivingZombie(choice(self.bosses), board_len, spawning_lane, self.game)
                     else:
                         new_living_zombie = LivingZombie(self.bosses, board_len, spawning_lane, self.game)

@@ -18,12 +18,10 @@ from events.event_waves import Waves
 
 class Game(Tk):
     def __init__(self,
-                 difficulty_rating: float = 1,
                  board_height: int = 5,
                  board_width: int = 8) -> None:
         super().__init__()
         self.player = Player(self)
-        self.difficulty_rating = difficulty_rating
         self.board_height = board_height
         self.board_width = board_width
         self.plant_selectors: list[PlantSelector] = []
@@ -43,19 +41,6 @@ class Game(Tk):
                 ),
             "event_waves": Waves(event_name="zombie_waves", game=self),
         }
-
-        # self.set_events()
-
-    # def set_events(self) -> None:
-    #     """Initialize events for game instance"""
-    #     for event in EVENTS:
-    #         setattr(self, "event_" + event.event_name, event)
-
-    def set_waves(self, waves: dict[int, list[Zombie]]) -> None:
-        if waves:
-            self.waves = waves
-        else:
-            self.waves = {}
 
     def start_game(self) -> None:
         self.events['event_invoke_zombie'].enable()

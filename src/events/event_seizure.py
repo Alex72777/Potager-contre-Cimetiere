@@ -5,7 +5,7 @@ from events.eventClass import Event
 from ui.lane import Lane
 
 class Seizure(Event):
-    """test event"""
+    """test event: applies a color to a random cell on a random lane."""
     def __init__(self,
                  game: "Game",
                  event_name: str,

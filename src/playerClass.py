@@ -14,6 +14,7 @@ class Player:
      master: app Tkinter
      unlocked_plants: list[Plant] Liste des plantes disponibles à l'usage dès le début de la partie
      selected_plants: PlantSelector | None Pointe vers le bouton sélecteur de la plante, None le cas échéant
+     amount_living_plants : int Nombre de plantes vivantes, permet une difficulté croissante des vagues
      SUNS_EARN_RATE: int La quantité de soleis reçus par le joueur toutes les SUNS_COOLDOWN secondes
      SUNS_COOlDOWN: int Le temps qui s'écoule avant que le joueur reçoive des soleils automatiquement
      DEFAULT_SUNS: int La quantité de départ de soleils du joueur
@@ -25,6 +26,7 @@ class Player:
     master: "Game"
     unlocked_plants: list[Plant] = field(default_factory=lambda: list(PLANTS.values()))
     selected_plant: PlantSelector | None = None
+    amount_living_plants = 0 
     killed_zombies: int = 0
     killed_bosses: int = 0
     SUNS_EARN_RATE = 25
