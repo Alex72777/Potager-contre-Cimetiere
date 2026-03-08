@@ -30,7 +30,7 @@ class Waves(Event):
 
 
     def update(self, current_tick: float, last_tick: float) -> None:
-        # 1 plants <> 250 zombie hp
+        # 1 plant <> 250 zombie hp
         # Min difficulty : 1000 zombie hp
         if self.state != 1:
             return
@@ -40,6 +40,7 @@ class Waves(Event):
                 pass
             else: # no more :>
                 self.wave_ended_timestamp = current_tick
+                self.has_last_wave_ended = True
                 print("a zombie wave has ended. (before max duration)")
                 print("a zombie wave will begin in {} seconds".format(
                     (self.wave_interval + (self.wave_began_timestamp + self.max_wave_duration  - current_tick))
@@ -47,3 +48,14 @@ class Waves(Event):
 
         elif current_tick - self.wave_began_timestamp > self.max_wave_duration and not self.has_last_wave_ended: # wave duration expired
             print("a zombie wave has ended. (exceeded max duration)")
+            self.wave_ended_timestamp = current_tick
+            self.has_last_wave_ended = True
+        
+        if self.has_last_wave_ended and current_tick - self.wave_ended_timestamp > self.wave_interval:
+            # make new zombie stack 
+
+            self.has_last_wave_ended = False
+            self.wave_began_timestamp = current_tick
+    
+    def make_zombie_stack(self) -> None:
+        pass
