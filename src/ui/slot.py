@@ -4,8 +4,8 @@ class Slot(Button):
     def __init__(self,
                  master: Frame,
                  x: int,
-                 lane: "Lane",
-                 taken_by: "LivingPlant | None" = None,):
+                 lane,
+                 taken_by = None,):
         super().__init__(master)
         self.taken_by = taken_by
         self.x = x

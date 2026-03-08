@@ -9,7 +9,7 @@ class Event():
     STATE_INT = Literal[-1, 0, 1]
 
     def __init__(self,
-                 game: "Game",
+                 game,
                  event_name: str,
                  priority: int,
                 #  is_ui: bool,
