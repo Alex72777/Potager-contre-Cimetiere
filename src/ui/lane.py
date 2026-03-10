@@ -75,6 +75,7 @@ class Lane:
         plante.slot.taken_by = plante
         self.plantes.append(plante)
         self.player.amount_living_plants += 1
+        self.player.sum_livingplant_hp += plante.health_scale
 
     def defiler_zombie(self) -> None:
         """

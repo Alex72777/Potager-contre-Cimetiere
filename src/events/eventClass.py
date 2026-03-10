@@ -1,6 +1,5 @@
 from typing import Literal
 
-# from src.gameClass import Game
 from ui.lane import Lane
 
 class Event():

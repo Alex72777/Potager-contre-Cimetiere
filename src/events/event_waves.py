@@ -20,7 +20,6 @@ class Waves(Event):
                  max_zombie_spawn_interval: float = 30,
                  max_wave_duration: float = 90,
                  min_zombie_hp: int = 1000,
-                 per_plant_zombie_hp: int = 250,
                  state: Literal['disabled'] | Literal['paused'] | Literal['enabled'] | Literal[-1] | Literal[0] | Literal[1] = 'disabled') -> None:
         super().__init__(game=game, event_name=event_name, state=state, priority=5)
         self.added_at = monotonic()
@@ -35,7 +34,6 @@ class Waves(Event):
         self.wave_ended_timestamp = 0
         self.has_last_wave_ended = True
 
-        self.per_plant_zombie_hp = per_plant_zombie_hp
         self.min_zombie_hp = min_zombie_hp
         self.total_zombie_hp = 0
         self.last_zombie_spawn_timestamp = 0
@@ -43,8 +41,7 @@ class Waves(Event):
 
 
     def update(self, current_tick: float, last_tick: float) -> None:
-        # 1 plant <> 250 zombie hp
-        # Min difficulty : 1000 zombie hp
+        # Min difficulty : 1000 zombie hp + each living plants hp
         if self.state != 1 or current_tick - self.added_at < self.grace_period:
             return
         
@@ -81,7 +78,7 @@ class Waves(Event):
     
     def make_zombie_stack(self) -> list[Zombie]:
         max_zombie_hp = self.min_zombie_hp
-        max_zombie_hp += self.game.player.amount_living_plants * self.per_plant_zombie_hp
+        max_zombie_hp += self.game.player.sum_livingplant_hp
         print("making new waves with %d HP" % max_zombie_hp)
 
         all_zombies = list(ZOMBIES.values()) + list(BOSSES.values())
@@ -97,6 +94,11 @@ class Waves(Event):
         
         print("new wave counts %d zombies" % len(new_zombies))
         return new_zombies
+
+    def _on_enable(self) -> None:
+        super()._on_enable()
+        if self.grace_period > 0:
+            print("for this time, waves have a grace period of %.1f seconds" % self.grace_period)
 
     def _sort_zombie_by_hp(self, val: Zombie) -> int:
         return val.health
