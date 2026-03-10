@@ -137,7 +137,7 @@ class Lane:
             self.dig_up_plant()
             return
 
-        if self.len_plantes >= self.len_slots:
+        if self.len_plantes >= self.width:
             return
         slot = self.slots[self.len_plantes]
 
@@ -177,5 +177,5 @@ class Lane:
         return len(self.plantes)
 
     @property
-    def len_slots(self) -> int:
+    def width(self) -> int:
         return len(self.slots)

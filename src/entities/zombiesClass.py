@@ -5,6 +5,7 @@ class Zombie:
     name: str
     attack_damage: int
     health: int
+    is_boss: bool = False
 
     speed = round(1/4.7, 4)
     attack_range = .2
@@ -21,5 +22,5 @@ ZOMBIES: dict[str, Zombie] = {
 }
 
 BOSSES: dict[str, Zombie] = {
-    'boss_hulk': Zombie(name="Hulk", health=2000, attack_damage=250),
+    'boss_hulk': Zombie(name="Hulk", health=2000, attack_damage=250, is_boss=True),
 }

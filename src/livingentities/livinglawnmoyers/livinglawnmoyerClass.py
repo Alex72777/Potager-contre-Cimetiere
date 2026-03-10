@@ -24,7 +24,7 @@ class LivingLawnmoyer:
         Méthode de ticking pour la classe LivingLawnmoyer.
         """
         dt = current_tick - last_tick
-        self.x = max(0, min(self.lane.len_slots, self.x + self.speed * dt * self.direction))
+        self.x = max(0, min(self.lane.width, self.x + self.speed * dt * self.direction))
 
         zombie = self.lane.get_zombie()
         while zombie != None and zombie.x <= self.x + 1 and self.direction > 0:
@@ -36,10 +36,10 @@ class LivingLawnmoyer:
             if plante != None and self.x <= plante.x:
                 plante.kill()
 
-        if self.x == self.lane.len_slots and self.destroys_everything == True:
+        if self.x == self.lane.width and self.destroys_everything == True:
             self.direction = -1
 
-        if ((self.x == self.lane.len_slots and self.destroys_everything == False)
+        if ((self.x == self.lane.width and self.destroys_everything == False)
             or (self.x == 0 and self.direction < 0 and self.destroys_everything == True)):
             self.lane.lawnmoyer = None
             del self

@@ -78,7 +78,7 @@ class Slot(Button):
         cursors: dict[int, dict] = {}
         for opt, val in options['content'].items():
             if not str(opt).isdigit() and opt[0] == "+":
-                for i in range(self.x, min(self.lane.len_slots, self.x + int(opt[1:]) + 1)):
+                for i in range(self.x, min(self.lane.width, self.x + int(opt[1:]) + 1)):
                     if not i in cursors:
                         cursors[i] = val
             elif not str(opt).isdigit() and opt[0] == "-":

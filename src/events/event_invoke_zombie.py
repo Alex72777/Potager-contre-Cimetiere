@@ -35,7 +35,7 @@ class InvokeZombie(Event):
         if self.state == 1:
             self._ui_update(self.game.board, current_tick, last_tick)
             lanes: list[Lane] = self.game.board
-            board_len = lanes[0].len_slots
+            board_len = lanes[0].width
 
             if current_tick - self.timestamp > self.interval:
                 killed_zombies = self.game.player.killed_zombies
@@ -59,7 +59,7 @@ class InvokeZombie(Event):
     def _ui_update(self, board: list[Lane], current_tick: float, last_tick: float) -> None:
         self.ui_conf = {}
         if current_tick - self.timestamp <= self.interval and current_tick - self.timestamp > self.interval - 3:
-            slot_pos = self.next_lane.slots[self.next_lane.len_slots - 1].pos
+            slot_pos = self.next_lane.slots[self.next_lane.width - 1].pos
             if current_tick - self.keytime > 1:
                 self.ui_conf = {}
                 self.keytime = current_tick

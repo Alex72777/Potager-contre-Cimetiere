@@ -20,7 +20,7 @@ class Seizure(Event):
 
     def _ui_update(self, board: list[Lane], current_tick: float, last_tick: float) -> None:
         if current_tick - self.timestamp > self.elapse_time:
-            rand_slot = (randint(0, len(board)), randint(0, board[0].len_slots))
+            rand_slot = (randint(0, len(board)), randint(0, board[0].width))
             display_slots: dict[tuple, dict] = {}
             display_slots[rand_slot] = {"bg": "blue"}
 

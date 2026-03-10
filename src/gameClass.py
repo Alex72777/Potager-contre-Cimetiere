@@ -25,7 +25,6 @@ class Game(Tk):
         self.board_height = board_height
         self.board_width = board_width
         self.plant_selectors: list[PlantSelector] = []
-        self.waves: dict[int, list[Zombie]] = {}
         self.board: list[Lane] = []
         self.speed = 1
         self.has_ended = False
@@ -43,7 +42,8 @@ class Game(Tk):
         }
 
     def start_game(self) -> None:
-        self.events['event_invoke_zombie'].enable()
+        # self.events['event_invoke_zombie'].enable()
+        self.events['event_waves'].enable()
         print("game started")
 
     def end_game(self) -> None:
@@ -51,8 +51,9 @@ class Game(Tk):
             print('game stopped')
             self.has_ended = True
             self.events['event_game_ended'].enable()
-#             self.events['event_seizure'].enable()
-            self.events['event_invoke_zombie'].disable()
+            # self.events['event_seizure'].enable()
+            # self.events['event_invoke_zombie'].disable()
+            self.events['event_waves'].disable()
 
     def draw(self) -> None:
         game_frame = Frame(self, bg='gray64', padx=10, pady=10)

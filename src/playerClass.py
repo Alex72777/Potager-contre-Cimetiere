@@ -25,7 +25,8 @@ class Player:
     master: "Game"
     unlocked_plants: list[Plant] = field(default_factory=lambda: list(PLANTS.values()))
     selected_plant: PlantSelector | None = None
-    amount_living_plants = 0 
+    amount_living_plants: int = 0 
+    sum_livingplant_hp: int = 0
     killed_zombies: int = 0
     killed_bosses: int = 0
     SUNS_EARN_RATE = 25
