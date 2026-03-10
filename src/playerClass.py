@@ -6,7 +6,6 @@ from entities.plantsClass import Plant, PLANTS
 
 from ui.plantselector import PlantSelector
 
-
 @dataclass
 class Player:
     """
