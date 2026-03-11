@@ -15,21 +15,19 @@ class InvokeZombie(Event):
                  game: "Game",
                  event_name: str,
                  zombie: Zombie | list[Zombie],
-                 bosses: Zombie | list[Zombie],
                  interval: float,
                  state: Literal['disabled'] | Literal['paused'] | Literal['enabled'] | Literal[-1] | Literal[0] | Literal[1] = 'disabled') -> None:
         super().__init__(game, event_name, priority=5, state=state)
         self.zombie = zombie
-        self.bosses = bosses
         self.interval = interval
         self.timestamp = monotonic()
         self.keytime = 0
         self.ui_conf = {}
 
     def _on_enable(self) -> None:
+        super()._on_enable()
         lanes: list[Lane] = self.game.board
         self.next_lane = choice(lanes)
-        super()._on_enable()
 
     def update(self, current_tick: float, last_tick: float) -> None:
         if self.state == 1:
@@ -40,17 +38,11 @@ class InvokeZombie(Event):
             if current_tick - self.timestamp > self.interval:
                 killed_zombies = self.game.player.killed_zombies
                 spawning_lane = self.next_lane
-                
-                if killed_zombies % 10 == 0 and killed_zombies > 0:
-                    if isinstance(self.bosses, list):
-                        new_living_zombie = LivingZombie(choice(self.bosses), board_len, spawning_lane, self.game)
-                    else:
-                        new_living_zombie = LivingZombie(self.bosses, board_len, spawning_lane, self.game)
+            
+                if isinstance(self.zombie, list):
+                    new_living_zombie = LivingZombie(choice(self.zombie), board_len, spawning_lane, self.game)
                 else:
-                    if isinstance(self.zombie, list):
-                        new_living_zombie = LivingZombie(choice(self.zombie), board_len, spawning_lane, self.game)
-                    else:
-                        new_living_zombie = LivingZombie(self.zombie, board_len, spawning_lane, self.game)
+                    new_living_zombie = LivingZombie(self.zombie, board_len, spawning_lane, self.game)
                 
                 self.next_lane.enfiler_zombie(new_living_zombie)
                 self.timestamp = current_tick

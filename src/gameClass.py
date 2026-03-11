@@ -7,7 +7,7 @@ from ui.plantselector import PlantSelector
 from ui.lane import Lane
 from ui.slot import Slot
 
-from entities.zombiesClass import Zombie, ZOMBIES, BOSSES
+from entities.zombiesClass import Zombie, ZOMBIES
 
 from events.eventClass import Event
 
@@ -35,7 +35,6 @@ class Game(Tk):
                 event_name="invoke_zombie",
                 game=self,
                 zombie=list(ZOMBIES.values()),
-                bosses=list(BOSSES.values()),
                 interval=10
                 ),
             "event_waves": Waves(event_name="zombie_waves", game=self),
