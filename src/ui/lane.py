@@ -102,6 +102,7 @@ class Lane:
 
         val: LivingPlant = self.plantes.pop()
         self.player.amount_living_plants = max(0, self.player.amount_living_plants - 1)
+        self.player.sum_livingplant_hp = max(0, self.player.amount_living_plants - val.health_scale)
         print(f"{val.name} tuée. {self.player.amount_living_plants} remaining.",)
         val.slot.taken_by = None
         del val
