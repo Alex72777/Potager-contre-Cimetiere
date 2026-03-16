@@ -42,10 +42,13 @@ class Waves(Event):
         self.total_zombie_hp = 0
         self.last_zombie_spawn_timestamp = 0
         self.zombie_stack = []
+        self.total_zombie = 0
+        self.zombie_spawn_interval = 0
 
         self.debug_stats = {
             'wave_count': StringVar(game, name='Wave count'),
             'ongoing_wave_timer': StringVar(game, name='Wave timer'),
+            'next_wave_timer': StringVar(game, name='Next Wave In'),
             'remaining_zombie': StringVar(game, name='Remaining zombies'),
             'total_zombie_wave': StringVar(game, name='Total Zombie Wave'),
             'total_zombie_hp': StringVar(game, name='Total Zombie HP'),
@@ -61,6 +64,7 @@ class Waves(Event):
 
     def update(self, current_tick: float, last_tick: float) -> None:
         # Min difficulty : 1000 zombie hp + each living plants hp
+        self._update_debug_stats(current_tick)
         if self.state != 1 or current_tick - self.added_at < self.grace_period:
             return
         
@@ -96,12 +100,11 @@ class Waves(Event):
             self.has_last_wave_ended = False
             self.wave_began_timestamp = current_tick
             print("new wave incoming, interval is %.2f" % self.zombie_spawn_interval)
-        
-        self._update_debug_stats(current_tick)
     
     def make_zombie_stack(self) -> list[Zombie]:
         max_zombie_hp = self.min_zombie_hp
         max_zombie_hp += self.game.player.sum_livingplant_hp
+        self.total_zombie_hp = max_zombie_hp
         print("making new waves with %d HP" % max_zombie_hp)
 
         all_zombies = []
@@ -139,6 +142,12 @@ class Waves(Event):
             self.debug_stats[stat_name].set(round(self.max_wave_duration - (current_tick - self.wave_began_timestamp), 1))
         else:
             self.debug_stats[stat_name].set('0')
+    
+    def _update_next_wave_timer(self, current_tick, stat_name) -> None:
+        if self.has_last_wave_ended:
+            self.debug_stats[stat_name].set('%.1f' % (current_tick + self.wave_interval - self.wave_ended_timestamp))
+        else:
+             self.debug_stats[stat_name].set('0')
     
     def _update_remaining_zombie(self, current_tick, stat_name) -> None:
         self.debug_stats[stat_name].set('%d' % len(self.zombie_stack))

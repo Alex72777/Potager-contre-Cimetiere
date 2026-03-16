@@ -100,6 +100,24 @@ class Game(Tk):
         board_frame.pack(side='left')
 
         game_frame.pack(fill='both', expand=True)
+        
+        # Debugging frame
+        
+        debug_frame = Frame(self)
+        _ = 0
+        row = 0
+        row_max = 5
+        col_max = 15
+        for stat, var in self.events['event_waves'].debug_stats.items():
+            Label(debug_frame, text=stat).grid(row=row, column=_)
+            Label(debug_frame, textvariable=var).grid(row=row + 1, column=_)
+            if _ >= col_max:
+                _ = 0
+                row += 2
+            else:
+                _ += 1
+        
+        debug_frame.pack(fill='x')
 
         self.start_game()
         self.after(1, lambda: self.tick(monotonic()))
