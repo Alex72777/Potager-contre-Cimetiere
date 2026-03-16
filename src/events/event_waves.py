@@ -190,7 +190,7 @@ class Waves(Event):
     def _on_enable(self) -> None:
         super()._on_enable()
         if self.grace_period > 0:
-            print("for this time, waves have a grace period of %.1f seconds" % self.grace_period)
+            print("first wave has a grace period of %.1f seconds" % self.grace_period)
 
     def _sort_zombie_by_hp(self, val: Zombie) -> int:
         return val.health

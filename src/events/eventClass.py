@@ -17,6 +17,7 @@ class Event():
         self.name = event_name
         self.priority = priority
 
+        self.debug_stats = {}
         self._ui_conf: dict[tuple[int, int], dict[str, str]] = {}
 
         if not str(state).isdigit() and state in self.STATE_TO_INT.keys():
