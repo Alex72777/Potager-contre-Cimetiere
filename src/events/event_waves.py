@@ -57,8 +57,10 @@ class Waves(Event):
             'has_wave_ended': StringVar(game, name='Has Wave Ended'),
             'grace_period': StringVar(game, name='Grace Period'),
             'zombie_spawn_interval': StringVar(game, name='Zombie Spawning Interval'),
+            'next_zombie_spawn': StringVar(game, name="Next Zombie In"),
             'wave_interval': StringVar(game, value= '%.1f' % self.wave_interval, name='Wave Interval'),
-            'max_wave_duration': StringVar(game, value='%.1f' % self.max_wave_duration, name='Maximum Wave Duration')
+            'max_wave_duration': StringVar(game, value='%.1f' % self.max_wave_duration, name='Maximum Wave Duration'),
+            'is_enabled': StringVar(game, name="Is Enabled")
         }
 
 
@@ -99,6 +101,7 @@ class Waves(Event):
             self.zombie_spawn_interval = min(self.max_zombie_spawn_interval, max(self.min_zombie_spawn_interval, self.max_wave_duration / len(self.zombie_stack)))
             self.has_last_wave_ended = False
             self.wave_began_timestamp = current_tick
+            self.last_zombie_spawn_interval = current_tick
             print("new wave incoming, interval is %.2f" % self.zombie_spawn_interval)
     
     def make_zombie_stack(self) -> list[Zombie]:
@@ -144,8 +147,10 @@ class Waves(Event):
             self.debug_stats[stat_name].set('0')
     
     def _update_next_wave_timer(self, current_tick, stat_name) -> None:
-        if self.has_last_wave_ended:
-            self.debug_stats[stat_name].set('%.1f' % (current_tick + self.wave_interval - self.wave_ended_timestamp))
+        if self.has_last_wave_ended and self.added_at - current_tick + self.grace_period > 0:
+            self.debug_stats[stat_name].set('%.1f' % (self.added_at - current_tick + self.grace_period))
+        elif self.has_last_wave_ended:
+            self.debug_stats[stat_name].set('%.1f' % (self.wave_interval - current_tick + self.wave_ended_timestamp))
         else:
              self.debug_stats[stat_name].set('0')
     
@@ -159,7 +164,7 @@ class Waves(Event):
         self.debug_stats[stat_name].set('%d' % self.total_zombie_hp)
     
     def _update_is_boss_wave(self, current_tick, stat_name) -> None:
-        if self.wave_count % self.boss_wave_interval == 0:
+        if self.wave_count % self.boss_wave_interval == 0 and self.wave_count > 0:
             self.debug_stats[stat_name].set('Yes')
         else:
             self.debug_stats[stat_name].set('No')
@@ -172,6 +177,15 @@ class Waves(Event):
     
     def _update_zombie_spawn_interval(self, current_tick, stat_name) -> None:
         self.debug_stats[stat_name].set('%.1f' % self.zombie_spawn_interval)
+    
+    def _update_next_zombie_spawn(self, current_tick, stat_name) -> None:
+        if not self.has_last_wave_ended and len(self.zombie_stack) > 0:
+            self.debug_stats[stat_name].set('%.1f' % (self.zombie_spawn_interval - current_tick + self.last_zombie_spawn_timestamp))
+        else:
+            self.debug_stats[stat_name].set('0')
+    
+    def _update_is_enabled(self, current_tick, stat_name) -> None:
+        self.debug_stats[stat_name].set('Yes' if self.state == 1 else 'No')
     
     def _on_enable(self) -> None:
         super()._on_enable()
