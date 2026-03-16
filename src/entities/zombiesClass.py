@@ -7,7 +7,7 @@ class Zombie:
     health: int
     is_boss: bool = False
 
-    speed = round(1/4.7, 4)
+    speed = 5 # round(1/4.7, 4)
     attack_range = .2
     attack_cooldown = 1.
 

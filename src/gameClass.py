@@ -11,7 +11,8 @@ from entities.zombiesClass import Zombie, ZOMBIES
 
 from events.eventClass import Event
 
-from events.event_display_text import DisplayText
+from events.event_start_game import LaunchGame
+from events.event_end_game import TerminateGame
 from events.event_seizure import Seizure
 from events.event_invoke_zombie import InvokeZombie
 from events.event_waves import Waves
@@ -27,9 +28,7 @@ class Game(Tk):
         self.plant_selectors: list[PlantSelector] = []
         self.board: list[Lane] = []
         self.speed = 1
-        self.has_ended = False
         self.events: dict[str, Event] = {
-            "event_game_ended": DisplayText(event_name="game_ended", text="loser", text_slide_speed=1, direction=1, starting_x=0, game=self),
             "event_seizure": Seizure(event_name="seizure", game=self, elapse_time=.05),
             "event_invoke_zombie": InvokeZombie(
                 event_name="invoke_zombie",
@@ -38,21 +37,9 @@ class Game(Tk):
                 interval=10
                 ),
             "event_waves": Waves(event_name="zombie_waves", game=self),
+            'event_start_game': LaunchGame(event_name="launch_game", game=self, priority=1),
+            'event_end_game': TerminateGame(event_name="terminate_game", game=self, priority=1)
         }
-
-    def start_game(self) -> None:
-        # self.events['event_invoke_zombie'].enable()
-        self.events['event_waves'].enable()
-        print("game started")
-
-    def end_game(self) -> None:
-        if not self.has_ended:
-            print('game stopped')
-            self.has_ended = True
-            self.events['event_game_ended'].enable()
-            # self.events['event_seizure'].enable()
-            # self.events['event_invoke_zombie'].disable()
-            self.events['event_waves'].disable()
 
     def draw(self) -> None:
         game_frame = Frame(self, bg='gray64', padx=10, pady=10)
@@ -119,7 +106,7 @@ class Game(Tk):
         
         debug_frame.pack(fill='x')
 
-        self.start_game()
+        self.events['event_start_game'].enable()
         self.after(1, lambda: self.tick(monotonic()))
         self.mainloop()
 
@@ -133,7 +120,6 @@ class Game(Tk):
         # Slot update
 
         for lane in self.board:
-            lane.update(self.has_ended)
             lane.house_slot.update_slot(current_tick, last_tick)
             for slot in lane.slots:
                 slot.update_text(current_tick, last_tick)
@@ -141,12 +127,6 @@ class Game(Tk):
         # Player's passive suns income
 
         self.player.update(current_tick, last_tick)
-
-        # end game
-
-        if self.has_ended:
-            for lane in self.board:
-                lane.release_lawnmoyer()
 
         # Living entities ticking
         for lane in self.board:

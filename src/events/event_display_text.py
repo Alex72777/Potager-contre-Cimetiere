@@ -15,7 +15,7 @@ class DisplayText(Event):
         }
     }
     def __init__(self,
-                 game: "Game",
+                 game,
                  event_name: str,
                  text: str,
                  text_slide_speed: float,
@@ -42,7 +42,7 @@ class DisplayText(Event):
         self._ui_update(self.game.board, current_tick, last_tick)
 
     def _ui_update(self, board: list[Lane], current_tick: float, last_tick: float) -> None:
-        # returns {(0, 0): {"bg": "red"}}
+        # returns {(y, x): {"bg": "color"}}
 
         # {(0, 0): {"bg": "red"}}
         return

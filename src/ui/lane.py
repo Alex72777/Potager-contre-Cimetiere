@@ -38,17 +38,15 @@ class Lane:
         self.house_slot = HouseSlot(self.house_frame, self, taken_by=Lawnmoyer())
         self.house_slot.grid(row=self.y, column=0)
 
-    def release_lawnmoyer(self) -> None:
+    def release_lawnmoyer(self, destroys_everything: bool = False) -> None:
         """
         Libère la tondeuse de som emplacement pour la rendre vivante.
         """
         self.lawnmoyer_released = True
-
-    def update(self, destroy_everything: bool = False) -> None:
-        if self.house_slot.taken_by != None and (self.player.master.has_ended or self.lawnmoyer_released):
-            lawnmoyer = LivingLawnmoyer(self.house_slot.taken_by, self, destroys_everything=destroy_everything)
+        if self.house_slot.taken_by != None and (self.lawnmoyer_released):
+            lawnmoyer = LivingLawnmoyer(self.house_slot.taken_by, self, destroys_everything)
             self.house_slot.taken_by = None
-            self.lawnmoyer = lawnmoyer
+            self.lawnmoyer = lawnmoyer 
 
     def dig_up_plant(self) -> None:
         plante = self.get_plante()

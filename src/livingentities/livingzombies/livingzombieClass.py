@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from math import floor
 
 from entities.zombiesClass import Zombie
 
@@ -57,7 +56,7 @@ class LivingZombie:
             if self.lane.house_slot.taken_by != None:
                 self.lane.release_lawnmoyer()
             else:
-                self.master.end_game()
+                self.master.events['event_end_game'].enable()
                 self.kill()
 
     def sous_texte(self, current_tick: float, last_tick: float) -> str:

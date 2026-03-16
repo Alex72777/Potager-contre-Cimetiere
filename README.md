@@ -20,27 +20,27 @@ In **Potager contre Cimetière**, you defend your garden against waves of zombie
 ```
 src/
 ├── main.py                    # Entry point
-├── gameClass.py              # Core game loop and logic
-├── playerClass.py            # Player state and resources
-├── entities/                 # Static entity definitions
-│   ├── plantsClass.py       # Plant types and properties
-│   ├── zombiesClass.py      # Zombie types and properties
-│   └── lawnmoyersClass.py   # Lawn mower entities
-├── livingentities/           # Dynamic game entities
-│   ├── livingplants/        # Active plant instances
-│   ├── livingzombies/       # Active zombie instances
-│   └── livinglawnmoyers/    # Active lawn mower instances
-├── events/                   # Event management system
-│   ├── eventClass.py        # Base event class
-│   ├── event_waves.py       # Wave management
+├── gameClass.py               # Core game loop and logic
+├── playerClass.py             # Player state and resources
+├── entities/                  # Static entity definitions
+│   ├── plantsClass.py         # Plant types and properties
+│   ├── zombiesClass.py        # Zombie types and properties
+│   └── lawnmoyersClass.py     # Lawn mower entities
+├── livingentities/            # Dynamic game entities
+│   ├── livingplants/          # Active plant instances
+│   ├── livingzombies/         # Active zombie instances
+│   └── livinglawnmoyers/      # Active lawn mower instances
+├── events/                    # Event management system
+│   ├── eventClass.py          # Base event class
+│   ├── event_waves.py         # Wave management
 │   ├── event_invoke_zombie.py
 │   ├── event_seizure.py
 │   └── event_display_text.py
-└── ui/                       # User interface components
-    ├── lane.py              # Game lanes
-    ├── slot.py              # Plant placement slots
-    ├── plantselector.py     # Plant selection menu
-    └── houseslot.py         # House/goal slot
+└── ui/                        # User interface components
+    ├── lane.py                # Game lanes
+    ├── slot.py                # Plant placement slots
+    ├── plantselector.py       # Plant selection menu
+    └── houseslot.py           # House/goal slot
 ```
 
 ## 🚀 Quick Start
