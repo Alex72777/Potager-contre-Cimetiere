@@ -75,7 +75,8 @@ class Lane:
         plante.slot.taken_by = plante
         self.plantes.append(plante)
         self.player.amount_living_plants += 1
-        self.player.sum_livingplant_hp += plante.health_scale
+        if not plante.plant.ignore_in_hp_sum:
+            self.player.sum_livingplant_hp += plante.health_scale
 
     def defiler_zombie(self) -> None:
         """
@@ -102,7 +103,8 @@ class Lane:
 
         val: LivingPlant = self.plantes.pop()
         self.player.amount_living_plants = max(0, self.player.amount_living_plants - 1)
-        self.player.sum_livingplant_hp = max(0, self.player.sum_livingplant_hp - val.health_scale)
+        if not val.plant.ignore_in_hp_sum:
+            self.player.sum_livingplant_hp = max(0, self.player.sum_livingplant_hp - val.health_scale)
         print(f"{val.name} tuée. {self.player.amount_living_plants} remaining. (plantHP:{val.health_scale}, total:{self.player.sum_livingplant_hp})",)
         val.slot.taken_by = None
         del val

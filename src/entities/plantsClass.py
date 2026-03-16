@@ -6,6 +6,7 @@ class Plant:
     cooldown: float
     cost: int
     health: int
+    ignore_in_hp_sum: bool = False
 
 class Peashooter(Plant):
     def __init__(self,
@@ -38,7 +39,7 @@ class Wallnut(Plant):
                  cost,
                  health,
                  cooldown = 30,):
-        super().__init__(name=name, cost=cost, cooldown=cooldown, health=health)
+        super().__init__(name=name, cost=cost, cooldown=cooldown, health=health, ignore_in_hp_sum=True)
 
 class Landmine(Plant):
     def __init__(self,

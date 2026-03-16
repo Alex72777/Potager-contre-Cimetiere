@@ -21,7 +21,7 @@ class Game(Tk):
                  board_height: int = 5,
                  board_width: int = 8) -> None:
         super().__init__()
-        self.player = Player(self)
+        self.player = Player(self,default_suns=100)
         self.board_height = board_height
         self.board_width = board_width
         self.plant_selectors: list[PlantSelector] = []

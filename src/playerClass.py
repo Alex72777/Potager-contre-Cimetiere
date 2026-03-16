@@ -25,18 +25,19 @@ class Player:
     master: "Game"
     unlocked_plants: list[Plant] = field(default_factory=lambda: list(PLANTS.values()))
     selected_plant: PlantSelector | None = None
-    amount_living_plants: int = 0 
-    sum_livingplant_hp: int = 0
-    killed_zombies: int = 0
-    killed_bosses: int = 0
-    SUNS_EARN_RATE = 25
-    SUNS_COOLDOWN = 10 # seconds
-    DEFAULT_SUNS = 1000
+    suns_earn_rate: int = 25
+    suns_cooldown: int = 10 # seconds
+    default_suns: int = 1000
 
     def __post_init__(self):
-        self.suns = IntVar(self.master, self.DEFAULT_SUNS)
-        self.suns_earn_cooldown = DoubleVar(self.master, self.SUNS_COOLDOWN)
+        self.suns = IntVar(self.master, self.default_suns)
+        self.suns_earn_cooldown = DoubleVar(self.master, self.suns_cooldown)
         self.lastly_earned_suns = monotonic()
+
+        self.amount_living_plants: int = 0 
+        self.sum_livingplant_hp: int = 0
+        self.killed_zombies: int = 0
+        self.killed_bosses: int = 0
 
     def select_plant(self, selectable_plant: PlantSelector) -> None:
         time_elapsed: float = monotonic() - selectable_plant.last_used
@@ -52,8 +53,8 @@ class Player:
         self.suns.set(max(0, self.suns.get() + suns))
 
     def update(self, current_tick: float, last_tick: float) -> None:
-        if current_tick - self.lastly_earned_suns >= self.SUNS_COOLDOWN:
-            self.add_suns(self.SUNS_EARN_RATE)
+        if current_tick - self.lastly_earned_suns >= self.suns_cooldown:
+            self.add_suns(self.suns_earn_rate)
             self.lastly_earned_suns = current_tick
         else:
-            self.suns_earn_cooldown.set(round(self.SUNS_COOLDOWN - (current_tick - self.lastly_earned_suns), 1))
+            self.suns_earn_cooldown.set(round(self.suns_cooldown - (current_tick - self.lastly_earned_suns), 1))
