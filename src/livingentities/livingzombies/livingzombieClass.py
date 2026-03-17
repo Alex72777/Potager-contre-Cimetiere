@@ -17,7 +17,7 @@ class LivingZombie:
         self.attack_damage = self.zombie.attack_damage
         self.attack_range = self.zombie.attack_range
         self.attack_cooldown = self.zombie.attack_cooldown
-        self.speed = self.zombie.speed
+        self.speed = self.zombie.SPEED
         self.last_attacked = 0.
 
     def damage(self, damage: int):

@@ -27,7 +27,6 @@ class Game(Tk):
         self.board_width = board_width
         self.plant_selectors: list[PlantSelector] = []
         self.board: list[Lane] = []
-        self.speed = 1
         self.events: dict[str, Event] = {
             "event_seizure": Seizure(event_name="seizure", game=self, elapse_time=.05),
             "event_invoke_zombie": InvokeZombie(
