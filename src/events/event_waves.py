@@ -6,8 +6,10 @@ from tkinter import StringVar
 from events.eventClass import Event
 
 from entities.zombiesClass import Zombie, ZOMBIES
+from entities.plantsClass import PLANTS
 
 from livingentities.livingzombies.livingzombieClass import LivingZombie
+from livingentities.livingzombies.zombie_plant_eater import PlantEater
 
 from ui.lane import Lane
 
@@ -76,7 +78,18 @@ class Waves(Event):
                 random_lane = lanes[randint(0, len(lanes) - 1)]
 
                 spawning_zombie = self.zombie_stack.pop() # stack logic
-                random_lane.enfiler_zombie(LivingZombie(spawning_zombie, random_lane.width, random_lane, self.game, is_boss=spawning_zombie.is_boss))
+                if spawning_zombie.eats_plant:
+                    new_zombie = PlantEater(spawning_zombie,
+                                            random_lane.width,
+                                            random_lane,
+                                            self.game,
+                                            spawning_zombie.is_boss,
+                                            spawning_zombie.consumes_plants,
+                                            spawning_zombie.eating_cooldown)
+                else:
+                    new_zombie = LivingZombie(spawning_zombie, random_lane.width, random_lane, self.game, is_boss=spawning_zombie.is_boss)
+                
+                random_lane.enfiler_zombie(new_zombie)
                 self.last_zombie_spawn_timestamp = current_tick
                 print("new zombie seen at lane %d!" % random_lane.y)
             

@@ -9,10 +9,11 @@ from ui.lane import Lane
 from entities.zombiesClass import Zombie
 
 from livingentities.livingzombies.livingzombieClass import LivingZombie
+from livingentities.livingzombies.zombie_plant_eater import PlantEater
 
 class InvokeZombie(Event):
     def __init__(self,
-                 game: "Game",
+                 game,
                  event_name: str,
                  zombie: Zombie | list[Zombie],
                  interval: float,
@@ -40,9 +41,16 @@ class InvokeZombie(Event):
                 spawning_lane = self.next_lane
             
                 if isinstance(self.zombie, list):
-                    new_living_zombie = LivingZombie(choice(self.zombie), board_len, spawning_lane, self.game)
+                    zombie = choice(self.zombie)
+                    if zombie.eats_plant:
+                        new_living_zombie = PlantEater(zombie, board_len, spawning_lane, self.game, zombie.is_boss, zombie.consumes_plants, zombie.eating_cooldown)
+                    else:
+                        new_living_zombie = LivingZombie(choice(self.zombie), board_len, spawning_lane, self.game)
                 else:
-                    new_living_zombie = LivingZombie(self.zombie, board_len, spawning_lane, self.game)
+                    if self.zombie.eats_plant:
+                        new_living_zombie = PlantEater(self.zombie, board_len, spawning_lane, self.game, self.zombie.is_boss, self.zombie.consumes_plants, self.zombie.eating_cooldown)
+                    else:
+                        new_living_zombie = LivingZombie(self.zombie, board_len, spawning_lane, self.game)
                 
                 self.next_lane.enfiler_zombie(new_living_zombie)
                 self.timestamp = current_tick

@@ -27,10 +27,10 @@ class LivingZombie:
         self.health = 0
 
     def update(self, current_tick: float, last_tick: float) -> None:
-        dt = current_tick - last_tick
         """
         Méthode de ticking pour la classe LivingZombie.
         """
+        dt = current_tick - last_tick
 
         if self.health == 0:
             self.lane.defiler_zombie()

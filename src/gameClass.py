@@ -22,7 +22,7 @@ class Game(Tk):
                  board_height: int = 5,
                  board_width: int = 8) -> None:
         super().__init__()
-        self.player = Player(self,default_suns=100)
+        self.player = Player(self,default_suns=250)
         self.board_height = board_height
         self.board_width = board_width
         self.plant_selectors: list[PlantSelector] = []
@@ -32,7 +32,7 @@ class Game(Tk):
             "event_invoke_zombie": InvokeZombie(
                 event_name="invoke_zombie",
                 game=self,
-                zombie=list(ZOMBIES.values()),
+                zombie=ZOMBIES['boss_ogre'],
                 interval=10
                 ),
             "event_waves": Waves(event_name="zombie_waves", game=self),
@@ -92,7 +92,6 @@ class Game(Tk):
         debug_frame = Frame(self)
         _ = 0
         row = 0
-        row_max = 5
         col_max = 15
         for stat, var in self.events['event_waves'].debug_stats.items():
             Label(debug_frame, text=stat).grid(row=row, column=_)
