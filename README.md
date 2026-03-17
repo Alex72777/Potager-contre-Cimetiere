@@ -35,7 +35,9 @@ src/
 │   ├── event_waves.py         # Wave management
 │   ├── event_invoke_zombie.py
 │   ├── event_seizure.py
-│   └── event_display_text.py
+│   ├── event_display_text.py
+|   ├── event_start_game.py
+|   └── event_end_game.py
 └── ui/                        # User interface components
     ├── lane.py                # Game lanes
     ├── slot.py                # Plant placement slots
