@@ -7,7 +7,7 @@ from ui.plantselector import PlantSelector
 from ui.lane import Lane
 from ui.slot import Slot
 
-from entities.zombiesClass import Zombie, ZOMBIES
+from entities.zombiesClass import ZOMBIES
 
 from events.eventClass import Event
 
@@ -22,7 +22,7 @@ class Game(Tk):
                  board_height: int = 5,
                  board_width: int = 8) -> None:
         super().__init__()
-        self.player = Player(self,default_suns=250)
+        self.player = Player(self,default_suns=500)
         self.board_height = board_height
         self.board_width = board_width
         self.plant_selectors: list[PlantSelector] = []
